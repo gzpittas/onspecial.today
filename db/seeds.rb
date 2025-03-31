@@ -1,32 +1,34 @@
 # db/seeds.rb
 
-# Clear existing data
+# Clear existing data in proper order to avoid foreign key violations
+MenuItem.destroy_all
+MenuCategory.destroy_all
 Item.destroy_all
 Category.destroy_all
 Menu.destroy_all
-MenuCategory.destroy_all
-MenuItem.destroy_all
 
 # Create categories
 categories = [
-  { name: "Appetizers" },
-  { name: "Soups & Salads" },
-  { name: "Main Courses" },
-  { name: "Sandwiches" },
-  { name: "Desserts" },
-  { name: "Beverages" }
+  { name: "Soup" },
+  { name: "Salad" },
+  { name: "Sandwich" },
+  { name: "Dinner" },
+  { name: "Platter" },
+  { name: "Dessert" }
 ]
 categories.each { |cat| Category.create!(cat) }
 
 # Create a sample menu
 menu = Menu.create!(title: "Daily Specials", date: Date.today)
 
-# Associate all categories with the menu
+# Associate all categories with the menu and store menu_categories
+menu_categories = []
 categories.each do |cat|
-  MenuCategory.create!(
+  category = Category.find_by(name: cat[:name])
+  menu_categories << MenuCategory.create!(
     menu: menu,
-    category: Category.find_by(name: cat[:name]),
-    position: Category.find_by(name: cat[:name]).id
+    category: category,
+    position: category.id
   )
 end
 
@@ -82,46 +84,33 @@ items.each do |item_data|
   item.save!
 end
 
-# Add some sample items to the menu
-appetizers_category = Category.find_by(name: "Appetizers")
-main_courses_category = Category.find_by(name: "Main Courses")
+# Add items to menu categories
+appetizer_category = Category.find_by(name: "Appetizer")
+main_courses_category = Category.find_by(name: "Dinner") # Changed from "Main Courses" to match your categories
 desserts_category = Category.find_by(name: "Desserts")
 
-menu_category_app = MenuCategory.find_by(menu: menu, category: appetizers_category)
+menu_category_app = MenuCategory.find_by(menu: menu, category: appetizer_category)
 menu_category_main = MenuCategory.find_by(menu: menu, category: main_courses_category)
 menu_category_dessert = MenuCategory.find_by(menu: menu, category: desserts_category)
 
-# Add 3 items to each menu category
-Item.limit(3).each do |item|
-  MenuItem.create!(
-    menu: menu,
-    menu_category: menu_category_app,
-    item: item,
-    position: item.id
-  )
+# Add items to menu categories
+[menu_category_app, menu_category_main, menu_category_dessert].each do |menu_category|
+  next unless menu_category # Skip if menu_category doesn't exist
+  
+  category_items = Item.where(category: menu_category.category).limit(3)
+  category_items.each_with_index do |item, index|
+    MenuItem.create!(
+      menu: menu,
+      menu_category: menu_category,
+      item: item,
+      position: index + 1
+    )
+  end
 end
 
-Item.offset(10).limit(3).each do |item|
-  MenuItem.create!(
-    menu: menu,
-    menu_category: menu_category_main,
-    item: item,
-    position: item.id
-  )
-end
-
-Item.offset(20).limit(3).each do |item|
-  MenuItem.create!(
-    menu: menu,
-    menu_category: menu_category_dessert,
-    item: item,
-    position: item.id
-  )
-end
-
-puts "Created:"
+puts "Seeding completed successfully!"
 puts "- #{Category.count} categories"
 puts "- #{Item.count} items"
-puts "- #{Menu.count} menu"
+puts "- #{Menu.count} menus"
 puts "- #{MenuCategory.count} menu categories"
 puts "- #{MenuItem.count} menu items"

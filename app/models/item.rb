@@ -16,3 +16,8 @@ class Item < ApplicationRecord
     end
   end
 end
+
+# app/models/menu.rb
+def title_with_date
+  "#{title} (#{date.strftime('%b %d, %Y')})"
+end
