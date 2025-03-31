@@ -1,0 +1,55 @@
+<%# app/views/items/_form.html.erb %>
+<div class="container mt-5">
+  <div class="bg-light p-5 rounded-3 mb-4 shadow">
+    <%= form_with(model: item, 
+                class: "edit-item-form", 
+                data: { 
+                  controller: "price-calculator select",
+                  price_calculator_markup_value: "1.2" 
+                }) do |form| %>
+      <% if item.errors.any? %>
+        <div class="alert alert-danger">
+          <h2><%= pluralize(item.errors.count, "error") %> prohibited this item from being saved:</h2>
+          <ul>
+            <% item.errors.each do |error| %>
+              <li><%= error.full_message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <%= form.label :name, class: "form-label" %>
+          <%= form.text_field :name, class: "form-control form-control-lg" %>
+        </div>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col">
+          <%= form.label :description, class: "form-label" %>
+          <%= form.text_area :description, class: "form-control", rows: 3 %>
+        </div>
+      </div>
+        
+
+      <div class="d-flex gap-4">
+        <%= form.submit item.persisted? ? "Update Item" : "Create Item", class: "btn btn-warning" %>
+        <%= link_to "Cancel", item.persisted? ? item_path(item) : items_path, class: "btn btn-secondary" %>
+        <%= link_to "Back to items", items_path, class: "btn btn-outline-secondary px-4" %>
+      </div>
+    <% end %>
+
+    <% if item.persisted? %>
+      <div class="mt-3 text-end">
+        <%= button_to "Delete Item", item, 
+                    method: :delete, 
+                    form: { 
+                      class: "d-inline",
+                      data: { turbo_confirm: "Are you sure?" } 
+                    },
+                    class: "btn btn-danger" %>
+      </div>
+    <% end %>
+  </div>
+</div>

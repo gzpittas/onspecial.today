@@ -1,0 +1,100 @@
+<% content_for :title, "Items" %>
+
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <!-- Centered single column -->
+    <div class="col-12 col-lg-8"> <!-- Adjusted column width -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">ITEMS</h1>
+        <%= link_to "ADD NEW ITEM", new_item_path, class: 'btn btn-primary' %>
+      </div>
+
+      <div class="accordion mb-4" id="itemsAccordion">
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseItems" aria-expanded="true" aria-controls="collapseItems">
+              All Items (<%= @items.count %>)
+            </button>
+          </h2>
+          <div id="collapseItems" class="accordion-collapse collapse show" data-bs-parent="#itemsAccordion">
+            <div class="accordion-body p-0">
+              <div class="list-group" style="max-height: 60vh; overflow-y: auto;">
+                <% @items.each do |item| %>
+                  <%= link_to item_path(item), class: "list-group-item list-group-item-action" do %>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div>
+                        <strong class="text-uppercase"><%= item.name %></strong>
+                        <% if item.description.present? %>
+                          <p class="text-muted small mb-0"><%= item.description %></p>
+                        <% end %>
+                      </div>
+                      <div class="text-end">
+                        <span class="text-dark"><%= number_to_currency(item.credit_price) %></span>
+                        <span class="text-muted small d-block">(<%= number_to_currency(item.cash_price) %>)</span>
+                      </div>
+                    </div>
+                  <% end %>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .accordion-button:not(.collapsed) {
+    background-color: #f8f9fa;
+    color: #212529;
+  }
+  
+  .accordion-button:focus {
+    box-shadow: none;
+    border-color: rgba(0,0,0,.125);
+  }
+  
+  .list-group-item {
+    border-left: none;
+    border-right: none;
+    padding: 1rem 1.25rem;
+  }
+  
+  .list-group-item:first-child {
+    border-top: none;
+  }
+  
+  .list-group-item:hover {
+    background-color: #f8f9fa;
+  }
+  
+  /* Custom scrollbar */
+  .list-group::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .list-group::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  
+  .list-group::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+  }
+  
+  .list-group::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+</style>
+
+<script>
+  // Simple search functionality
+  document.getElementById('itemSearch').addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase();
+    document.querySelectorAll('.list-group-item').forEach(item => {
+      const text = item.textContent.toLowerCase();
+      item.style.display = text.includes(searchTerm) ? '' : 'none';
+    });
+  });
+</script>

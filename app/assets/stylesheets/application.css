@@ -1,0 +1,33 @@
+body, h1, h2, p {
+  font-family: 'Commissioner', sans-serif !important;
+}
+
+/* app/assets/stylesheets/application.css */
+
+.select-on-click::selection {
+  background: rgba(0, 123, 255, 0.2); /* Light blue selection */
+}
+
+.currency-input {
+  font-family: monospace; /* Better number alignment */
+}
+
+/* app/assets/stylesheets/application.css */
+.form-control-static {
+  padding: 0.375rem 0;
+  background: transparent;
+  border: none;
+}
+
+.form-control-static-lg {
+  font-size: 1.25rem;
+  line-height: 1.5;
+  padding: 0.5rem 0;
+}
+
+/* app/assets/stylesheets/application.css */
+.delete-form {
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+}
