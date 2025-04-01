@@ -68,3 +68,17 @@
     </div>
   </div>
 </div>
+
+<div class="card-header bg-white text-center">
+  <h1 class="display-4 mb-1"><%= @menu.title %></h1>
+  <p class="text-muted"><%= @menu.date.strftime("%A, %B %d, %Y") %></p>
+  <div class="d-flex justify-content-center gap-2">
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addItemModal">
+      Add Item to Menu
+    </button>
+    <%= button_to "Clear Menu", clear_menu_path(@menu), 
+          method: :delete,
+          form: { data: { turbo_confirm: "Are you sure you want to remove ALL items from this menu?" } },
+          class: "btn btn-outline-danger" %>
+  </div>
+</div>

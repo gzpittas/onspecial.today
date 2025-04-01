@@ -4,6 +4,7 @@ Rails.application.routes.draw do
     member do
       post :add_category
       post :add_item
+      delete :clear
     end
   end
 

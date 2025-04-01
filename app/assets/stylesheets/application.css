@@ -1,5 +1,5 @@
 body, h1, h2, p {
-  font-family: 'Commissioner', sans-serif !important;
+  font-family: 'Turnpike', sans-serif !important;
 }
 
 /* app/assets/stylesheets/application.css */
@@ -38,4 +38,53 @@ body, h1, h2, p {
 
 .item-details .text-muted {
   font-size: 0.9rem;
+}
+
+
+/* Menu cards styling */
+
+.menu-card {
+  transition: all 0.2s ease;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.menu-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  background-color: #e0e0e0 !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .col-md-4 {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+}
+
+@media (max-width: 576px) {
+  .col-md-4 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+  .menu-card {
+    height: 160px !important;
+  }
+}
+
+
+/* Button spacing */
+
+.menu-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+/* Clear button hover effect */
+.btn-outline-danger:hover {
+  background-color: #dc3545;
+  color: white;
 }

@@ -189,7 +189,6 @@ const ItemSearch = {
       });
     });
   }
-};
 
 // Menu Items Module
 const MenuItems = {

@@ -53,7 +53,20 @@ class MenusController < ApplicationController
     redirect_to @menu, notice: 'Item added to menu'
   end
 
+  def clear
+    @menu = Menu.find(params[:id])
+    
+    # Either destroy through the join table:
+    MenuItem.where(menu_id: @menu.id).destroy_all
+    
+    # OR alternative approach:
+    # @menu.menu_categories.each { |mc| mc.menu_items.destroy_all }
+    
+    redirect_to @menu, notice: 'All items have been removed from the menu.'
+  end
+
   private
+  
     def set_menu
       @menu = Menu.find(params[:id])
     end
