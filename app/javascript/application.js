@@ -86,3 +86,73 @@ document.addEventListener('DOMContentLoaded', initializeAll);
 if (document.readyState === 'complete') {
   initializeAll();
 }
+
+
+// Enable drag-and-drop sorting
+document.addEventListener('DOMContentLoaded', function() {
+  const sortable = new Sortable(document.querySelector('.menu-items-container'), {
+    handle: '.menu-item',
+    animation: 150,
+    onEnd: function(evt) {
+      const itemId = evt.item.dataset.id;
+      const newPosition = evt.newIndex + 1;
+      
+      fetch(`/menu_items/${itemId}/update_position`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({ position: newPosition })
+      });
+    }
+  });
+});
+
+
+function addItemToMenu(itemId, categoryId) {
+
+  const menuCategory = window.menuCategories.find(c => c.category_id == categoryId);
+
+  const payload = {
+    menu_item: {
+      menu_id: <%= @menu.id %>,
+      item_id: itemId,
+      menu_category_id: categoryId // This should be the Category ID, not MenuCategory ID
+    }
+  };
+
+  fetch('/menu_items', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+    },
+    body: JSON.stringify(payload)
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      window.location.reload();
+    } else {
+      alert('Error: ' + (data.errors || data.error));
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Failed to add item');
+  });
+}
+
+
+
+// When loading the menu show page:
+fetch(`/menus/<%= @menu.id %>/categories`)
+  .then(response => response.json())
+  .then(categories => {
+    window.menuCategories = categories; // Store for later use
+  });
+
+
+
+

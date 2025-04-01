@@ -1,0 +1,21 @@
+<div class="menu-item mb-4 text-center position-relative" 
+     id="menu_item_<%= menu_item.id %>" 
+     data-position="<%= menu_item.position %>">
+  <h4><%= menu_item.item.name %></h4>
+  <% if menu_item.item.description.present? %>
+    <p class="text-muted"><%= menu_item.item.description %></p>
+  <% end %>
+  <div>
+    <span class="text-success me-3"><%= number_to_currency(menu_item.item.cash_price) %> cash</span>
+    <span class="text-muted"><%= number_to_currency(menu_item.item.credit_price) %> credit</span>
+  </div>
+  <%= link_to menu_item_path(menu_item), 
+      method: :delete, 
+      class: 'remove-item-btn position-absolute top-0 end-0 mt-1 me-2',
+      data: { 
+        turbo_method: :delete,
+        action: "click->menu#removeItem" 
+      } do %>
+    <span class="text-danger">&times;</span>
+  <% end %>
+</div>

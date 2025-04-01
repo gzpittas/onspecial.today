@@ -9,9 +9,25 @@ class ItemsController < ApplicationController
 
   # app/controllers/items_controller.rb
   def search
-    @items = Item.where("name ILIKE ?", "%#{params[:q]}%")
+    query = params[:q].to_s.strip
+    return render json: { error: "Query too short" }, status: :bad_request if query.length < 3
+
+    @items = Item.where("name ILIKE ?", "%#{query}%")
+                 .includes(:category)
                  .limit(20)
-    render json: @items.as_json(only: [:id, :name, :description, :credit_price, :cash_price])
+
+    render json: {
+      items: @items.map { |item| 
+        {
+          id: item.id,
+          name: item.name,
+          description: item.description,
+          credit_price: item.credit_price.to_f,
+          cash_price: item.cash_price.to_f,
+          category_id: item.category&.id
+        }
+      }
+    }
   end
 
   # GET /items/1 or /items/1.json

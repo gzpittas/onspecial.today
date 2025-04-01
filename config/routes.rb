@@ -6,19 +6,24 @@ Rails.application.routes.draw do
       post :add_item
     end
   end
-  
+
+  resources :menu_items, only: [:create, :destroy] do
+    member do
+      patch :update_position  # For drag-and-drop reordering
+    end
+  end
+
   resources :categories
   resources :items, except: [:edit] do
     member do
-      patch :update_menu_category  # Add this line inside the items block
+      patch :update_menu_category
     end
     
     collection do
       get :search
     end
   end
-  
-  root 'menus#index'
 
+  root 'menus#index'
   get "up" => "rails/health#show", as: :rails_health_check
 end
