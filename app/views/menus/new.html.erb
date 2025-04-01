@@ -9,3 +9,9 @@
 <div>
   <%= link_to "Back to menus", menus_path %>
 </div>
+
+
+<%= button_to "Clear Menu", clear_menu_path(@menu), 
+          method: :delete,
+          form: { data: { turbo_confirm: "Are you sure you want to remove ALL items from this menu?" } },
+          class: "btn btn-outline-danger" %>

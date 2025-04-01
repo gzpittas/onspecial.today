@@ -7,7 +7,9 @@ class MenusController < ApplicationController
   end
 
   def show
+    @menu = Menu.find(params[:id])
     @menu_categories = @menu.menu_categories.includes(:category, menu_items: :item)
+    @items = Item.all.order(:name) # This ensures @items is never nil
   end
 
   def new
@@ -47,10 +49,26 @@ class MenusController < ApplicationController
   end
 
   def add_item
-    menu_category = @menu.menu_categories.find(params[:menu_category_id])
+    @menu = Menu.find(params[:id])
     item = Item.find(params[:item_id])
-    menu_category.menu_items.create(item: item)
-    redirect_to @menu, notice: 'Item added to menu'
+    
+    # Find or create menu category based on item's category
+    menu_category = @menu.menu_categories.find_or_create_by(category: item.category || Category.first)
+    
+    # Create the menu item
+    menu_item = menu_category.menu_items.create(
+      menu: @menu,
+      item: item,
+      position: menu_category.menu_items.maximum(:position).to_i + 1
+    )
+    
+    if menu_item.persisted?
+      redirect_to @menu, notice: 'Item added to menu successfully'
+    else
+      redirect_to @menu, alert: "Failed to add item: #{menu_item.errors.full_messages.join(', ')}"
+    end
+  rescue ActiveRecord::RecordNotFound => e
+    redirect_to @menu, alert: "Error: #{e.message}"
   end
 
   def clear

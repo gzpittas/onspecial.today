@@ -3,9 +3,15 @@
     <div class="card-header bg-white text-center">
       <h1 class="display-4 mb-1"><%= @menu.title %></h1>
       <p class="text-muted"><%= @menu.date.strftime("%A, %B %d, %Y") %></p>
-      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addItemModal">
-        Add Item to Menu
-      </button>
+      <div class="d-flex justify-content-center gap-2">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addItemModal">
+          Add Item to Menu
+        </button>
+        <%= button_to "Clear Menu", clear_menu_path(@menu), 
+              method: :delete,
+              form: { data: { turbo_confirm: "Are you sure you want to remove ALL items from this menu?" } },
+              class: "btn btn-outline-danger" %>
+      </div>
     </div>
     
     <div class="card-body menu-items-container">
@@ -53,32 +59,173 @@
 
 <!-- Add Item Modal -->
 <div class="modal fade" id="addItemModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Add Items to Menu</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <div class="mb-3">
-          <input type="text" id="itemSearch" class="form-control" placeholder="Search items..." autocomplete="off">
-          <div id="searchResults" class="mt-2"></div>
+        <!-- Search Section -->
+        <div class="mb-4 position-relative">
+          <div class="search-container">
+            <div class="input-group">
+              <input type="text" id="modalItemsSearch" class="form-control search-input" 
+                     placeholder="Search Items..." aria-label="Search Items"
+                     autocomplete="off">
+              <button class="btn btn-outline-secondary" type="button" id="modalSearchButton">
+                <i class="bi bi-search"></i>
+              </button>
+            </div>
+            <div id="modalSearchResults" class="search-results-dropdown"></div>
+          </div>
+        </div>
+        
+        <!-- Items List -->
+        <div class="modal-items-list" style="max-height: 60vh; overflow-y: auto;">
+          <% @items.each do |item| %>
+            <div class="modal-item-entry list-group-item list-group-item-action"
+                 data-name="<%= item.name.downcase %>" 
+                 data-description="<%= item.description.to_s.downcase %>" 
+                 data-id="<%= item.id %>">
+              <div class="d-flex justify-content-between align-items-center p-3">
+                <div>
+                  <strong class="text-uppercase item-name"><%= item.name %></strong>
+                  <% if item.description.present? %>
+                    <p class="text-muted small mb-0 item-description"><%= item.description %></p>
+                  <% end %>
+                </div>
+                <div class="text-end">
+                  <span class="text-dark"><%= number_to_currency(item.credit_price) %></span>
+                  <span class="text-muted small d-block">(<%= number_to_currency(item.cash_price) %>)</span>
+                </div>
+                <div class="ms-3">
+                  <%= button_to "Add", add_item_menu_path(@menu, item_id: item.id), 
+                        method: :post, 
+                        class: "btn btn-sm btn-primary",
+                        form: { 
+                          class: "add-item-form",
+                          data: { turbo: false } 
+                        } %>
+                </div>
+              </div>
+            </div>
+          <% end %>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<div class="card-header bg-white text-center">
-  <h1 class="display-4 mb-1"><%= @menu.title %></h1>
-  <p class="text-muted"><%= @menu.date.strftime("%A, %B %d, %Y") %></p>
-  <div class="d-flex justify-content-center gap-2">
-    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addItemModal">
-      Add Item to Menu
-    </button>
-    <%= button_to "Clear Menu", clear_menu_path(@menu), 
-          method: :delete,
-          form: { data: { turbo_confirm: "Are you sure you want to remove ALL items from this menu?" } },
-          class: "btn btn-outline-danger" %>
-  </div>
-</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize modal search when modal is shown
+  const addItemModal = document.getElementById('addItemModal');
+  if (addItemModal) {
+    addItemModal.addEventListener('shown.bs.modal', function() {
+      initializeModalSearch();
+    });
+  }
+
+  function initializeModalSearch() {
+    const searchInput = document.getElementById('modalItemsSearch');
+    const searchResults = document.getElementById('modalSearchResults');
+    const modalItemsList = document.querySelector('.modal-items-list');
+    const menuId = document.querySelector('[data-menu-id]').dataset.menuId;
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+    
+    if (!searchInput || !searchResults || !modalItemsList) {
+      console.error('Required elements not found');
+      return;
+    }
+
+    const modalItems = Array.from(document.querySelectorAll('.modal-item-entry')).map(item => {
+      return {
+        element: item,
+        name: item.dataset.name,
+        description: item.dataset.description,
+        id: item.dataset.id,
+        html: item.innerHTML
+      };
+    });
+
+    function highlightText(text, searchTerm) {
+      if (!searchTerm) return text;
+      const regex = new RegExp(searchTerm, 'gi');
+      return text.replace(regex, match => `<span class="highlight">${match}</span>`);
+    }
+
+    function showSearchResults(results, searchTerm) {
+      searchResults.innerHTML = '';
+      
+      if (results.length === 0) {
+        searchResults.innerHTML = '<div class="search-result-item">No items found</div>';
+      } else {
+        results.forEach(item => {
+          const resultElement = document.createElement('div');
+          resultElement.className = 'search-result-item';
+          resultElement.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center p-3">
+              <div>
+                <strong class="text-uppercase">${highlightText(item.element.querySelector('.item-name').textContent, searchTerm)}</strong>
+                ${item.description ? `<p class="text-muted small mb-0">${highlightText(item.element.querySelector('.item-description')?.textContent || '', searchTerm)}</p>` : ''}
+              </div>
+              <div class="text-end">
+                <span class="text-dark">${item.element.querySelector('.text-dark').textContent}</span>
+                <span class="text-muted small d-block">${item.element.querySelector('.text-muted.small.d-block').textContent}</span>
+              </div>
+              <div class="ms-3">
+                <form class="add-item-form" action="/menus/${menuId}/add_item" method="post" data-turbo="false">
+                  <input type="hidden" name="authenticity_token" value="${csrfToken}">
+                  <input type="hidden" name="item_id" value="${item.id}">
+                  <button type="submit" class="btn btn-sm btn-primary">Add</button>
+                </form>
+              </div>
+            </div>
+          `;
+          
+          searchResults.appendChild(resultElement);
+        });
+      }
+      
+      searchResults.style.display = results.length > 0 ? 'block' : 'none';
+      modalItemsList.style.display = searchTerm ? 'none' : 'block';
+    }
+
+    function performSearch() {
+      const searchTerm = searchInput.value.toLowerCase().trim();
+      
+      if (searchTerm === '') {
+        searchResults.style.display = 'none';
+        modalItemsList.style.display = 'block';
+        return;
+      }
+      
+      const results = modalItems.filter(item => 
+        item.name.includes(searchTerm) || 
+        item.description.includes(searchTerm)
+      );
+      
+      showSearchResults(results, searchTerm);
+    }
+
+    // Event listeners
+    searchInput.addEventListener('input', performSearch);
+    searchInput.addEventListener('focus', performSearch);
+    
+    document.addEventListener('click', function(e) {
+      if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+        searchResults.style.display = 'none';
+      }
+    });
+
+    searchInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        searchResults.style.display = 'none';
+        modalItemsList.style.display = 'block';
+        searchInput.value = '';
+      }
+    });
+  }
+});
+</script>

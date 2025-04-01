@@ -1,0 +1,40 @@
+<div class="card-body menu-items-container">
+  <% @menu_categories.each do |menu_category| %>
+    <% if menu_category.menu_items.any? %>
+      <div class="menu-category mb-5" id="category-<%= menu_category.id %>">
+        <h2 class="text-center"><%= menu_category.category.name.upcase %></h2>
+        
+        <% menu_category.menu_items.each do |menu_item| %>
+          <div class="menu-item mb-4 text-center position-relative" data-id="<%= menu_item.id %>">
+            <h4><%= menu_item.item.name %></h4>
+            <div class="item-details">
+              <% if menu_item.item.description.present? %>
+                <p class="text-muted mb-1">
+                  <%= menu_item.item.description %>. 
+                  $<%= sprintf('%.2f', menu_item.item.credit_price) %>
+                  (<%= sprintf('%.2f', menu_item.item.cash_price) %>)
+                </p>
+              <% else %>
+                <p class="text-muted mb-1">
+                  $<%= sprintf('%.2f', menu_item.item.credit_price) %>
+                  (<%= sprintf('%.2f', menu_item.item.cash_price) %>)
+                </p>
+              <% end %>
+            </div>
+            <%= button_to menu_item_path(menu_item),
+                method: :delete,
+                form: { 
+                  data: { 
+                    turbo: false,
+                    confirm: "Are you sure you want to remove this item?" 
+                  } 
+                },
+                class: 'remove-item-btn position-absolute top-0 end-0 mt-1 me-2 border-0 bg-transparent p-0' do %>
+              <span class="text-danger h4">&times;</span>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+</div>
