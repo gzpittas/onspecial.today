@@ -32,14 +32,16 @@
                     </p>
                   <% end %>
                 </div>
-                <%= link_to menu_item_path(menu_item), 
+                <%= button_to menu_item_path(menu_item),
                     method: :delete,
-                    data: { 
-                      turbo_method: :delete,
-                      turbo_confirm: "Are you sure?"
+                    form: { 
+                      data: { 
+                        turbo: false,
+                        confirm: "Are you sure you want to remove this item?" 
+                      } 
                     },
-                    class: 'remove-item-btn position-absolute top-0 end-0 mt-1 me-2' do %>
-                  <span class="text-danger">&times;</span>
+                    class: 'remove-item-btn position-absolute top-0 end-0 mt-1 me-2 border-0 bg-transparent p-0' do %>
+                  <span class="text-danger h4">&times;</span>
                 <% end %>
               </div>
             <% end %>

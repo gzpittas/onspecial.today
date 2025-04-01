@@ -38,12 +38,17 @@ class MenuItemsController < ApplicationController
 
   def destroy
     @menu_item = MenuItem.find(params[:id])
+    @menu = @menu_item.menu
     @menu_item.destroy
     
-    respond_to do |format|
-      format.html { redirect_to menu_path(@menu_item.menu), notice: 'Item removed successfully' }
-      format.json { head :no_content }
+    # Force HTML response
+    if request.xhr?
+      head :no_content
+    else
+      redirect_to menu_path(@menu), notice: 'Item was successfully removed.'
     end
+  rescue ActiveRecord::RecordNotFound
+    redirect_to menus_path, alert: 'Item not found'
   end
 
   private

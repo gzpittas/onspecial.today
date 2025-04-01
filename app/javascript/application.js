@@ -1,4 +1,5 @@
-import "@hotwired/turbo-rails"
+import { Turbo } from "@hotwired/turbo-rails"
+Turbo.session.drive = false
 
 // Simple text selection function
 function selectAllText(input) {
@@ -153,6 +154,50 @@ fetch(`/menus/<%= @menu.id %>/categories`)
     window.menuCategories = categories; // Store for later use
   });
 
+// Force page reload after deletion
+document.addEventListener('turbo:before-fetch-response', function(event) {
+  const response = event.detail.fetchResponse;
+  if (event.detail.fetchOptions.method === 'DELETE') {
+    if (response.succeeded) {
+      window.location.href = response.headers.get('Turbo-Location') || window.location.href;
+    }
+  }
+});
 
+// Handle delete links if Turbo is still interfering
+document.addEventListener('click', function(event) {
+  if (event.target.closest('a[data-method="delete"]')) {
+    event.preventDefault();
+    const link = event.target.closest('a');
+    if (confirm(link.dataset.confirm)) {
+      fetch(link.href, {
+        method: 'DELETE',
+        headers: {
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
+          'Accept': 'text/html'  // Force HTML response
+        },
+        credentials: 'same-origin'
+      }).then(response => {
+        if (response.redirected) {
+          window.location.href = response.url;
+        }
+      });
+    }
+  }
+});
 
+// app/javascript/application.js
+document.addEventListener('DOMContentLoaded', function() {
+  // Handle delete buttons
+  document.addEventListener('ajax:success', function(event) {
+    const [data, status, xhr] = event.detail;
+    if (xhr.getResponseHeader('Content-Type').includes('text/html')) {
+      window.location.href = xhr.responseURL;
+    }
+  });
 
+  document.addEventListener('ajax:error', function(event) {
+    console.error('Delete failed:', event.detail);
+    alert('Failed to delete item');
+  });
+});
