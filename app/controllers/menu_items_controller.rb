@@ -1,5 +1,10 @@
 class MenuItemsController < ApplicationController
   skip_before_action :verify_authenticity_token, only: [:create]
+  before_action :set_menu_item, only: [:show, :destroy]
+
+  def show
+    render json: @menu_item
+  end
   
   def create
     @menu_item = MenuItem.new(menu_item_params)
@@ -36,12 +41,16 @@ class MenuItemsController < ApplicationController
     @menu_item.destroy
     
     respond_to do |format|
-      format.html { redirect_to menu_path(@menu_item.menu), notice: 'Item removed' }
+      format.html { redirect_to menu_path(@menu_item.menu), notice: 'Item removed successfully' }
       format.json { head :no_content }
     end
   end
 
   private
+
+  def set_menu_item
+    @menu_item = MenuItem.find(params[:id])
+  end
 
   def menu_item_params
     params.require(:menu_item).permit(:menu_id, :item_id, :menu_category_id)

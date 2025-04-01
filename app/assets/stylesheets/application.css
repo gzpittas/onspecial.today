@@ -31,3 +31,11 @@ body, h1, h2, p {
   margin: 0;
   padding: 0;
 }
+
+.item-details {
+  line-height: 1.4;
+}
+
+.item-details .text-muted {
+  font-size: 0.9rem;
+}

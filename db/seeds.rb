@@ -67,14 +67,7 @@ items = [
   { name: "New York Cheesecake", description: "Classic cheesecake with berry compote", cash_price: 6.99 },
   { name: "Crème Brûlée", description: "Vanilla custard with caramelized sugar", cash_price: 7.49 },
   { name: "Tiramisu", description: "Coffee-flavored Italian dessert", cash_price: 8.49 },
-  { name: "Apple Pie", description: "Classic pie with vanilla ice cream", cash_price: 6.49 },
-
-  # Beverages
-  { name: "Fresh Lemonade", description: "House-made with fresh lemons", cash_price: 3.99 },
-  { name: "Iced Tea", description: "Fresh brewed with lemon", cash_price: 2.99 },
-  { name: "Craft Beer", description: "Selection of local brews", cash_price: 6.99 },
-  { name: "House Red Wine", description: "Cabernet Sauvignon", cash_price: 8.99 },
-  { name: "Espresso", description: "Single or double shot", cash_price: 2.49 }
+  { name: "Apple Pie", description: "Classic pie with vanilla ice cream", cash_price: 6.49 }
 ]
 
 # Create items and calculate credit prices (3% markup)

@@ -7,7 +7,7 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :menu_items, only: [:create, :destroy] do
+  resources :menu_items, only: [:create, :destroy, :show] do
     member do
       patch :update_position  # For drag-and-drop reordering
     end

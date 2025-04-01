@@ -18,17 +18,27 @@
             <% menu_category.menu_items.each do |menu_item| %>
               <div class="menu-item mb-4 text-center position-relative">
                 <h4><%= menu_item.item.name %></h4>
-                <% if menu_item.item.description.present? %>
-                  <p class="text-muted"><%= menu_item.item.description %></p>
-                <% end %>
-                <div>
-                  <span class="text-success me-3">$<%= sprintf('%.2f', menu_item.item.cash_price) %> cash</span>
-                  <span class="text-muted">$<%= sprintf('%.2f', menu_item.item.credit_price) %> credit</span>
+                <div class="item-details">
+                  <% if menu_item.item.description.present? %>
+                    <p class="text-muted mb-1">
+                      <%= menu_item.item.description %>. 
+                      $<%= sprintf('%.2f', menu_item.item.credit_price) %>
+                      (<%= sprintf('%.2f', menu_item.item.cash_price) %>)
+                    </p>
+                  <% else %>
+                    <p class="text-muted mb-1">
+                      $<%= sprintf('%.2f', menu_item.item.credit_price) %>
+                      (<%= sprintf('%.2f', menu_item.item.cash_price) %>)
+                    </p>
+                  <% end %>
                 </div>
                 <%= link_to menu_item_path(menu_item), 
-                    method: :delete, 
-                    class: 'remove-item-btn position-absolute top-0 end-0 mt-1 me-2',
-                    data: { confirm: 'Remove this item from the menu?', turbo_method: :delete } do %>
+                    method: :delete,
+                    data: { 
+                      turbo_method: :delete,
+                      turbo_confirm: "Are you sure?"
+                    },
+                    class: 'remove-item-btn position-absolute top-0 end-0 mt-1 me-2' do %>
                   <span class="text-danger">&times;</span>
                 <% end %>
               </div>
@@ -107,10 +117,10 @@
           <div class="d-flex justify-content-between align-items-center">
             <div>
               <strong>${escapeHtml(item.name)}</strong>
-              ${item.description ? `<div class="text-muted small">${escapeHtml(item.description)}</div>` : ''}
-              <div class="small">
-                <span class="text-success">$${parseFloat(item.cash_price || 0).toFixed(2)} cash</span>
-                <span class="text-muted ms-2">$${parseFloat(item.credit_price || 0).toFixed(2)} credit</span>
+              <div class="text-muted small">
+                ${item.description ? escapeHtml(item.description) + '. ' : ''}
+                $${parseFloat(item.credit_price || 0).toFixed(2)}
+                ($${parseFloat(item.cash_price || 0).toFixed(2)})
               </div>
             </div>
             <button class="btn btn-sm btn-primary add-item-btn"
