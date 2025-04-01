@@ -156,41 +156,41 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function showSearchResults(results, searchTerm) {
-      searchResults.innerHTML = '';
+  searchResults.innerHTML = '';
+  
+  if (results.length === 0) {
+    searchResults.innerHTML = '<div class="search-result-item">No items found</div>';
+  } else {
+    results.forEach(item => {
+      const resultElement = document.createElement('div');
+      resultElement.className = 'search-result-item';
+      resultElement.innerHTML = `
+        <div class="d-flex justify-content-between align-items-center">
+          <div class="flex-grow-1 pe-3"> <!-- Added pe-3 for padding -->
+            <strong class="text-uppercase">${highlightText(item.element.querySelector('.item-name').textContent, searchTerm)}</strong>
+            ${item.description ? `<p class="text-muted small mb-0">${highlightText(item.element.querySelector('.item-description')?.textContent || '', searchTerm)}</p>` : ''}
+          </div>
+          <div class="text-nowrap text-end" style="min-width: 120px;"> <!-- Added fixed width -->
+            <span class="text-dark">${item.element.querySelector('.text-dark').textContent}</span>
+            <span class="text-muted small d-block">${item.element.querySelector('.text-muted.small.d-block').textContent}</span>
+          </div>
+          <div class="ms-3">
+            <form class="add-item-form" action="/menus/${menuId}/add_item" method="post" data-turbo="false">
+              <input type="hidden" name="authenticity_token" value="${csrfToken}">
+              <input type="hidden" name="item_id" value="${item.id}">
+              <button type="submit" class="btn btn-sm btn-primary">Add</button>
+            </form>
+          </div>
+        </div>
+      `;
       
-      if (results.length === 0) {
-        searchResults.innerHTML = '<div class="search-result-item">No items found</div>';
-      } else {
-        results.forEach(item => {
-          const resultElement = document.createElement('div');
-          resultElement.className = 'search-result-item';
-          resultElement.innerHTML = `
-            <div class="d-flex justify-content-between align-items-center p-3">
-              <div>
-                <strong class="text-uppercase">${highlightText(item.element.querySelector('.item-name').textContent, searchTerm)}</strong>
-                ${item.description ? `<p class="text-muted small mb-0">${highlightText(item.element.querySelector('.item-description')?.textContent || '', searchTerm)}</p>` : ''}
-              </div>
-              <div class="text-end">
-                <span class="text-dark">${item.element.querySelector('.text-dark').textContent}</span>
-                <span class="text-muted small d-block">${item.element.querySelector('.text-muted.small.d-block').textContent}</span>
-              </div>
-              <div class="ms-3">
-                <form class="add-item-form" action="/menus/${menuId}/add_item" method="post" data-turbo="false">
-                  <input type="hidden" name="authenticity_token" value="${csrfToken}">
-                  <input type="hidden" name="item_id" value="${item.id}">
-                  <button type="submit" class="btn btn-sm btn-primary">Add</button>
-                </form>
-              </div>
-            </div>
-          `;
-          
-          searchResults.appendChild(resultElement);
-        });
-      }
-      
-      searchResults.style.display = results.length > 0 ? 'block' : 'none';
-      modalItemsList.style.display = searchTerm ? 'none' : 'block';
-    }
+      searchResults.appendChild(resultElement);
+    });
+  }
+  
+  searchResults.style.display = results.length > 0 ? 'block' : 'none';
+  modalItemsList.style.display = searchTerm ? 'none' : 'block';
+}
 
     function performSearch() {
       const searchTerm = searchInput.value.toLowerCase().trim();
@@ -229,3 +229,66 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 </script>
+
+<style>
+  /* Search results dropdown styling */
+  .search-results-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    max-height: 400px;
+    overflow-y: auto;
+    background: white;
+    border: 1px solid #ced4da;
+    border-radius: 0 0 4px 4px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    display: none;
+  }
+  
+  .search-result-item {
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .search-result-item:hover {
+    background-color: #f8f9fa;
+  }
+  
+  /* Fix for price alignment */
+  .search-result-item .price-container {
+    min-width: 120px; /* Adjust as needed */
+    text-align: right;
+  }
+  
+  /* Ensure consistent layout between regular items and search results */
+  .modal-item-entry .price-container,
+  .search-result-item .price-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  
+  .highlight {
+    background-color: #ffeb3b;
+    font-weight: bold;
+    padding: 0 1px;
+  }
+
+  <style>
+  /* Add this to your existing styles */
+  .modal-item-entry .text-end,
+  .search-result-item .text-end {
+    min-width: 120px;
+    text-align: right !important;
+  }
+  
+  .modal-item-entry .d-block,
+  .search-result-item .d-block {
+    display: block !important;
+  }
+</style>
+</style>
