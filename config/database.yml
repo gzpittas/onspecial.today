@@ -21,13 +21,3 @@ test:
 production:
   <<: *default
   url: <%= ENV['DATABASE_URL'] %>
-
-# Required for SolidCable
-cable:
-  <<: *default
-  url: <%= ENV['DATABASE_URL'] %>
-
-# Required for SolidQueue
-queue:
-  <<: *default
-  url: <%= ENV['DATABASE_URL'] %>
