@@ -5,6 +5,7 @@ Rails.application.routes.draw do
       post :add_category
       post :add_item
       delete :clear
+      get :print
     end
   end
 

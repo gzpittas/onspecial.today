@@ -11,6 +11,8 @@
               method: :delete,
               form: { data: { turbo_confirm: "Are you sure you want to remove ALL items from this menu?" } },
               class: "btn btn-outline-danger" %>
+              <%# Add this to your app/views/menus/show.html.erb %>
+        <%= link_to "Print Menu", print_menu_path(@menu), class: "btn btn-success", target: "_blank" %>
       </div>
     </div>
     
@@ -18,11 +20,14 @@
       <% @menu_categories.each do |menu_category| %>
         <% if menu_category.menu_items.any? %>
           <div class="menu-category mb-5" id="category-<%= menu_category.id %>">
-            <h2 class="text-center"><%= menu_category.category.name.upcase %></h2>
+            <div class="text-center">
+              <h2 class="fw-bold" style="color: rgba(0, 0, 0, 0.5);"><%= menu_category.category.name.upcase %></h2>
+              <hr class="category-divider mx-auto">
+            </div>
             
             <% menu_category.menu_items.each do |menu_item| %>
               <div class="menu-item mb-4 text-center position-relative" data-id="<%= menu_item.id %>">
-                <h4><%= menu_item.item.name.upcase %></h4>
+                <h5 class="fw-bold"><%= menu_item.item.name.upcase %></h5>
                 <div class="item-details">
                   <% if menu_item.item.description.present? %>
                     <p class="text-muted mb-1">
@@ -289,6 +294,14 @@ document.addEventListener('DOMContentLoaded', function() {
   .modal-item-entry .d-block,
   .search-result-item .d-block {
     display: block !important;
+  }
+
+  .category-divider {
+    width: 6in; /* 6 inches */
+    border-top: 2px solid #dee2e6; /* Light gray line */
+    margin-top: 0.5rem;
+    margin-bottom: 1.5rem;
+    opacity: 0.7;
   }
 
 </style>

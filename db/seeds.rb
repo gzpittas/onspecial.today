@@ -10,10 +10,9 @@ Menu.destroy_all
 # Create categories (keeping only the original ones)
 categories = [
   { name: "Soup" },
-  { name: "Salad" },
-  { name: "Sandwich" },
+  { name: "Appetizer" },
+  { name: "Lunch" },
   { name: "Dinner" },
-  { name: "Platter" },
   { name: "Dessert" }
 ]
 categories.each { |cat| Category.create!(cat) }
@@ -41,18 +40,18 @@ items = [
   { name: "Butternut Squash Soup", description: "Velvety smooth with a touch of cream", cash_price: 6.49, category: "Soup" },
 
   # Salads
-  { name: "Caesar Salad", description: "Romaine, croutons, parmesan with Caesar dressing", cash_price: 8.99, category: "Salad" },
-  { name: "Cobb Salad", description: "Mixed greens with chicken, bacon, egg, avocado", cash_price: 12.99, category: "Salad" },
-  { name: "Greek Salad", description: "Cucumbers, tomatoes, olives, feta with vinaigrette", cash_price: 9.99, category: "Salad" },
-  { name: "Asian Chicken Salad", description: "Mixed greens with mandarin oranges and sesame dressing", cash_price: 10.99, category: "Salad" },
-  { name: "Caprese Salad", description: "Fresh mozzarella, tomatoes, and basil", cash_price: 8.49, category: "Salad" },
+  { name: "Caesar Salad", description: "Romaine, croutons, parmesan with Caesar dressing", cash_price: 8.99, category: "Appetizer" },
+  { name: "Cobb Salad", description: "Mixed greens with chicken, bacon, egg, avocado", cash_price: 12.99, category: "Appetizer" },
+  { name: "Greek Salad", description: "Cucumbers, tomatoes, olives, feta with vinaigrette", cash_price: 9.99, category: "Appetizer" },
+  { name: "Asian Chicken Salad", description: "Mixed greens with mandarin oranges and sesame dressing", cash_price: 10.99, category: "Appetizer" },
+  { name: "Caprese Salad", description: "Fresh mozzarella, tomatoes, and basil", cash_price: 8.49, category: "Appetizer" },
 
   # Sandwiches
-  { name: "Classic Burger", description: "Beef patty with lettuce, tomato and pickles", cash_price: 12.99, category: "Sandwich" },
-  { name: "Turkey Club", description: "Triple-decker with bacon and avocado", cash_price: 11.99, category: "Sandwich" },
-  { name: "Philly Cheesesteak", description: "Shaved ribeye with peppers and cheese", cash_price: 13.99, category: "Sandwich" },
-  { name: "Grilled Chicken Sandwich", description: "Marinated chicken breast with pesto", cash_price: 11.49, category: "Sandwich" },
-  { name: "Portobello Mushroom Burger", description: "Marinated portobello with goat cheese", cash_price: 10.99, category: "Sandwich" },
+  { name: "Classic Burger", description: "Beef patty with lettuce, tomato and pickles", cash_price: 12.99, category: "Lunch" },
+  { name: "Turkey Club", description: "Triple-decker with bacon and avocado", cash_price: 11.99, category: "Lunch" },
+  { name: "Philly Cheesesteak", description: "Shaved ribeye with peppers and cheese", cash_price: 13.99, category: "Lunch" },
+  { name: "Grilled Chicken Sandwich", description: "Marinated chicken breast with pesto", cash_price: 11.49, category: "Lunch" },
+  { name: "Portobello Mushroom Burger", description: "Marinated portobello with goat cheese", cash_price: 10.99, category: "Lunch" },
 
   # Dinner
   { name: "Filet Mignon", description: "8oz tender beef with mashed potatoes", cash_price: 28.99, category: "Dinner" },
@@ -62,11 +61,11 @@ items = [
   { name: "Vegetable Risotto", description: "Arborio rice with seasonal vegetables", cash_price: 15.99, category: "Dinner" },
 
   # Platters
-  { name: "Meat Lovers Platter", description: "Assorted cured meats and cheeses", cash_price: 18.99, category: "Platter" },
-  { name: "Seafood Tower", description: "Shrimp, oysters, crab legs with sauces", cash_price: 32.99, category: "Platter" },
-  { name: "Vegetable Platter", description: "Seasonal roasted vegetables with dips", cash_price: 14.99, category: "Platter" },
-  { name: "Cheese Board", description: "Artisanal cheeses with fruit and nuts", cash_price: 16.99, category: "Platter" },
-  { name: "Antipasto Platter", description: "Italian cold cuts, cheeses and marinated vegetables", cash_price: 17.99, category: "Platter" },
+  { name: "Meat Lovers Platter", description: "Assorted cured meats and cheeses", cash_price: 18.99, category: "Appetizer" },
+  { name: "Seafood Tower", description: "Shrimp, oysters, crab legs with sauces", cash_price: 32.99, category: "Appetizer" },
+  { name: "Vegetable Platter", description: "Seasonal roasted vegetables with dips", cash_price: 14.99, category: "Appetizer" },
+  { name: "Cheese Board", description: "Artisanal cheeses with fruit and nuts", cash_price: 16.99, category: "Appetizer" },
+  { name: "Antipasto Platter", description: "Italian cold cuts, cheeses and marinated vegetables", cash_price: 17.99, category: "Appetizer" },
 
   # Desserts
   { name: "Chocolate Lava Cake", description: "Warm chocolate cake with molten center", cash_price: 7.99, category: "Dessert" },
@@ -77,20 +76,20 @@ items = [
 
   # Additional 15 items
   { name: "Minestrone Soup", description: "Hearty vegetable soup with pasta", cash_price: 6.49, category: "Soup" },
-  { name: "Wedge Salad", description: "Iceberg wedge with blue cheese dressing", cash_price: 9.49, category: "Salad" },
-  { name: "Reuben Sandwich", description: "Corned beef, sauerkraut, Swiss cheese", cash_price: 12.49, category: "Sandwich" },
+  { name: "Wedge Salad", description: "Iceberg wedge with blue cheese dressing", cash_price: 9.49, category: "Appetizer" },
+  { name: "Reuben Sandwich", description: "Corned beef, sauerkraut, Swiss cheese", cash_price: 12.49, category: "Lunch" },
   { name: "Chicken Piccata", description: "Lemon butter sauce with capers", cash_price: 18.99, category: "Dinner" },
-  { name: "Fruit & Cheese Platter", description: "Seasonal fruits with artisanal cheeses", cash_price: 15.99, category: "Platter" },
+  { name: "Fruit & Cheese Platter", description: "Seasonal fruits with artisanal cheeses", cash_price: 15.99, category: "Appetizer" },
   { name: "Bread Pudding", description: "Warm with vanilla sauce", cash_price: 6.99, category: "Dessert" },
   { name: "Clam Chowder", description: "New England style with cream", cash_price: 7.49, category: "Soup" },
-  { name: "Spinach Salad", description: "With bacon, mushrooms and warm dressing", cash_price: 10.49, category: "Salad" },
-  { name: "BLT Sandwich", description: "Classic bacon, lettuce and tomato", cash_price: 9.99, category: "Sandwich" },
+  { name: "Spinach Salad", description: "With bacon, mushrooms and warm dressing", cash_price: 10.49, category: "Appetizer" },
+  { name: "BLT Sandwich", description: "Classic bacon, lettuce and tomato", cash_price: 9.99, category: "Lunch" },
   { name: "Pork Chop", description: "Bone-in with apple compote", cash_price: 19.99, category: "Dinner" },
-  { name: "Charcuterie Board", description: "Cured meats, pâtés and accompaniments", cash_price: 22.99, category: "Platter" },
+  { name: "Charcuterie Board", description: "Cured meats, pâtés and accompaniments", cash_price: 22.99, category: "Appetizer" },
   { name: "Chocolate Mousse", description: "Silky smooth dark chocolate", cash_price: 7.49, category: "Dessert" },
   { name: "Gazpacho", description: "Chilled Spanish tomato soup", cash_price: 5.99, category: "Soup" },
-  { name: "Quinoa Salad", description: "With roasted vegetables and feta", cash_price: 11.99, category: "Salad" },
-  { name: "Grilled Cheese", description: "Three cheese blend on sourdough", cash_price: 8.99, category: "Sandwich" }
+  { name: "Quinoa Salad", description: "With roasted vegetables and feta", cash_price: 11.99, category: "Appetizer" },
+  { name: "Grilled Cheese", description: "Three cheese blend on sourdough", cash_price: 8.99, category: "Lunch" }
 ]
 
 # Create items with category assignments and credit prices

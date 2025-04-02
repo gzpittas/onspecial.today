@@ -1,6 +1,6 @@
 # app/controllers/menus_controller.rb
 class MenusController < ApplicationController
-  before_action :set_menu, only: [:show, :edit, :update, :destroy, :add_category, :add_item]
+  before_action :set_menu, only: [:show, :edit, :update, :destroy, :add_category, :add_item, :print]
 
   def index
     @menus = Menu.order(date: :asc)
@@ -81,6 +81,12 @@ class MenusController < ApplicationController
     # @menu.menu_categories.each { |mc| mc.menu_items.destroy_all }
     
     redirect_to @menu, notice: 'All items have been removed from the menu.'
+  end
+
+  # app/controllers/menus_controller.rb
+  def print
+    @menu_categories = @menu.menu_categories.includes(:category, menu_items: :item)
+    render layout: false
   end
 
   private
