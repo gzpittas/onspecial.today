@@ -3,7 +3,7 @@ class MenusController < ApplicationController
   before_action :set_menu, only: [:show, :edit, :update, :destroy, :add_category, :add_item]
 
   def index
-    @menus = Menu.order(date: :desc)
+    @menus = Menu.order(date: :asc)
   end
 
   def show
@@ -13,7 +13,7 @@ class MenusController < ApplicationController
   end
 
   def new
-    @menu = Menu.new(date: Date.today)
+    @menu = Menu.new(title: "TODAY'S SPECIALS", date: Date.today)
   end
 
   def edit
