@@ -1,12 +1,15 @@
-<% content_for :title, "Editing menu" %>
+<% content_for :title, "Edit menu" %>
 
-<h1>Editing menu</h1>
+<h1>Edit menu</h1>
 
 <%= render "form", menu: @menu %>
 
 <br>
 
 <div>
-  <%= link_to "Show this menu", @menu %> |
   <%= link_to "Back to menus", menus_path %>
+  <%= button_to "Clear Menu", clear_menu_path(@menu), 
+        method: :delete,
+        form: { data: { turbo_confirm: "Are you sure you want to remove ALL items from this menu?" } },
+        class: "btn btn-outline-danger ms-2" %>
 </div>
