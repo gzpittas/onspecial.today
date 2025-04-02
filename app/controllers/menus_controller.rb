@@ -23,7 +23,7 @@ class MenusController < ApplicationController
     @menu = Menu.new(menu_params)
 
     if @menu.save
-      redirect_to @menu, notice: 'Menu was successfully created.'
+      redirect_to menus_path, notice: 'Menu was successfully created.'
     else
       render :new
     end
@@ -31,7 +31,7 @@ class MenusController < ApplicationController
 
   def update
     if @menu.update(menu_params)
-      redirect_to @menu, notice: 'Menu was successfully updated.'
+      redirect_to menus_path, notice: 'Menu was successfully updated.'
     else
       render :edit
     end

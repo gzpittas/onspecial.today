@@ -2,10 +2,11 @@
   <div class="card shadow-sm">
     <div class="card-header bg-white text-center">
       <h1><%= @menu.title.upcase %></h1>
-      <p class="text-muted"><%= @menu.date.strftime("%A, %B %d, %Y") %></p>
+      <p class="text-muted"><%= @menu.date.strftime("%A, %B %d, %Y").upcase %></p>
       <div class="d-flex justify-content-center gap-2">
+        <%= button_to "<- Back to Menus", menus_path, class: "btn btn-secondary" %>
         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addItemModal">
-          Add Item to Menu
+          + Add Item to Menu
         </button>
         <%= button_to "Clear Menu", clear_menu_path(@menu), 
               method: :delete,
@@ -105,7 +106,7 @@
                   <span class="text-muted small d-block">(<%= number_to_currency(item.cash_price) %>)</span>
                 </div>
                 <div class="ms-3">
-                  <%= button_to "Add", add_item_menu_path(@menu, item_id: item.id), 
+                  <%= button_to "+ Add", add_item_menu_path(@menu, item_id: item.id), 
                         method: :post, 
                         class: "btn btn-sm btn-primary",
                         form: { 
