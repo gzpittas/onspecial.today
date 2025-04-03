@@ -28,21 +28,23 @@
             
             <% menu_category.menu_items.each do |menu_item| %>
               <div class="menu-item mb-4 text-center position-relative" data-id="<%= menu_item.id %>">
-                <h5 class="fw-bold"><%= menu_item.item.name.upcase %></h5>
-                <div class="item-details">
-                  <% if menu_item.item.description.present? %>
-                    <p class="text-muted mb-1">
-                      <%= menu_item.item.description %>&nbsp;&nbsp; 
-                      $<%= sprintf('%.2f', menu_item.item.credit_price) %>
-                      (<%= sprintf('%.2f', menu_item.item.cash_price) %>)
-                    </p>
-                  <% else %>
-                    <p class="text-muted mb-1">
-                      $<%= sprintf('%.2f', menu_item.item.credit_price) %>
-                      (<%= sprintf('%.2f', menu_item.item.cash_price) %>)
-                    </p>
-                  <% end %>
-                </div>
+                <%= link_to item_path(menu_item.item), class: "text-decoration-none text-dark" do %>
+                  <h5 class="fw-bold"><%= menu_item.item.name.upcase %></h5>
+                  <div class="item-details">
+                    <% if menu_item.item.description.present? %>
+                      <p class="text-muted mb-1">
+                        <%= menu_item.item.description %>&nbsp;&nbsp; 
+                        $<%= sprintf('%.2f', menu_item.item.credit_price) %>
+                        (<%= sprintf('%.2f', menu_item.item.cash_price) %>)
+                      </p>
+                    <% else %>
+                      <p class="text-muted mb-1">
+                        $<%= sprintf('%.2f', menu_item.item.credit_price) %>
+                        (<%= sprintf('%.2f', menu_item.item.cash_price) %>)
+                      </p>
+                    <% end %>
+                  </div>
+                <% end %>
                 <%= button_to menu_item_path(menu_item),
                     method: :delete,
                     form: { 
@@ -304,5 +306,21 @@ document.addEventListener('DOMContentLoaded', function() {
     margin-bottom: 1.5rem;
     opacity: 0.7;
   }
+
+  .menu-item a:hover {
+    color: #888 !important; /* Slightly grey on hover */
+    transition: color 0.2s ease;
+  }
+
+  .menu-item a:hover .text-muted {
+    color: #888 !important; /* Make description slightly lighter on hover */
+  }
+
+  /* Ensure the remove button stays above the link */
+  .remove-item-btn {
+    z-index: 1;
+  }
+
+
 
 </style>
