@@ -5,7 +5,10 @@
     <div class="col-12 col-lg-8">
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="mb-0">ITEMS</h1>
-        <%= link_to "ADD NEW ITEM", new_item_path, class: 'btn btn-primary' %>
+        <div class="d-flex gap-2">
+          <%= link_to "<- Back to Menus", menus_path, class: 'btn btn-secondary' %>
+          <%= link_to "Add New Item", new_item_path, class: 'btn btn-primary' %>
+        </div>
       </div>
 
       <!-- Enhanced Search Bar with Dropdown Results -->
@@ -171,8 +174,12 @@
   .accordion-button:not(.collapsed) {
     background-color: rgba(210, 210, 210, 0.4);
   }
-  
-  /* ... other existing styles ... */
+
+  .accordion-body .list-group-item {
+  padding: .75rem 1.25rem;  /* ~10px top/bottom, 20px left/right */
+  min-height: 2.75rem;         /* ~44px total height */
+}
+
 </style>
 
 <script>
