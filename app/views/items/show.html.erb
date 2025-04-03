@@ -6,24 +6,29 @@
       <div class="bg-light p-5 rounded-3 mb-4 shadow position-relative">
         
         <!-- Preview box -->
-        <div class="bg-white p-4 mb-4 shadow" style="max-width: 336px; border-radius: 0;">
+        <div class="bg-white p-4 mb-4 shadow" style="max-width: 450px; border-radius: 0;">
           <div class="px-3 py-2">
-            <h1 class="mb-3 h4"><%= @item.persisted? ? @item.name : "Item Name" %></h1>
-            <p class="text-muted small mb-0">
+            <h1 class="mb-2 h4" id="preview-item-name"><%= @item.persisted? ? @item.name : "Item Name" %></h1>
+            <p class="small mb-2" id="preview-description">
+              <% if @item.description.present? %>
+                <%= @item.description %>
+              <% else %>
+                Item description and all the trimmings.
+              <% end %>
               <% if @item.persisted? && (@item.credit_price.present? || @item.cash_price.present?) %>
-                <br><%= number_to_currency(@item.credit_price) %> (<%= number_to_currency(@item.cash_price) %>)
+                <%= number_to_currency(@item.credit_price) %> (<%= number_to_currency(@item.cash_price) %>)
+              <% else %>
+                $10.00 ($9.70)
               <% end %>
             </p>
-            <p class="text-muted small mt-2">
-              <strong>Category:</strong> <%= @item.category&.name || "Not selected" %>
-            </p>
+            
           </div>
-        </div>
+        </div>   
 
         <!-- Category dropdown (always shown) -->
         <div class="position-absolute top-0 end-0 mt-4 me-4" style="z-index: 1; width: 300px; left: 90%; transform: translateX(-90%);">
           <div class="mb-2 text-center">
-            <h2><%= @item.category.present? ? @item.category.name.upcase : "SELECT CATEGORY" %></h2>
+            <h2 id="category-header"><%= @item.category.present? ? @item.category.name.upcase : "SELECT CATEGORY" %></h2>
           </div>
 
           <div class="dropdown" style="width: 100%;">
@@ -64,6 +69,7 @@
               <%= form.label :name, class: "form-label" %>
               <%= form.text_field :name, 
                   class: "form-control form-control-lg",
+                  id: "item-name-input",
                   value: @item.name,
                   placeholder: "Enter Item Name" %>
             </div>
@@ -74,6 +80,7 @@
               <%= form.label :description, class: "form-label" %>
               <%= form.text_area :description, 
                   class: "form-control", 
+                  id: "item-description-input",
                   rows: 3,
                   value: @item.description,
                   placeholder: "Enter item description" %>
@@ -145,66 +152,94 @@
 </div>
 
 <script>
-  // Handle category selection
-  document.querySelectorAll('.dropdown-item[data-category-id]').forEach(item => {
-    item.addEventListener('click', (e) => {
-      e.preventDefault();
-      const categoryId = e.target.dataset.categoryId;
-      const categoryName = e.target.textContent;
-      
-      // Update the hidden field
-      document.getElementById('category-field').value = categoryId;
-      
-      // Update the dropdown button text
-      document.getElementById('categoryDropdown').textContent = categoryName;
-      
-      // Update the category name in preview
-      const categoryHeaders = document.querySelectorAll('h2');
-      categoryHeaders.forEach(header => {
-        if (header.textContent.includes('CATEGORY')) {
-          header.textContent = categoryName.toUpperCase();
+  document.addEventListener('DOMContentLoaded', function() {
+    // Handle category selection
+    document.querySelectorAll('.dropdown-item[data-category-id]').forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.preventDefault();
+        const categoryId = e.target.dataset.categoryId;
+        const categoryName = e.target.textContent;
+        
+        // Update the hidden field
+        document.getElementById('category-field').value = categoryId;
+        
+        // Update the dropdown button text
+        document.getElementById('categoryDropdown').textContent = categoryName;
+        
+        // Update the category header
+        document.getElementById('category-header').textContent = categoryName.toUpperCase();
+        
+        // Update the category in the preview box
+        document.getElementById('preview-category').innerHTML = `<strong>Category:</strong> ${categoryName}`;
+        
+        // If this is a new item, update the preview name when category changes
+        if (!<%= @item.persisted? %>) {
+          const defaultNames = {
+            'Appetizers': 'New Appetizer',
+            'Entrees': 'New Entree',
+            'Desserts': 'New Dessert',
+            'Drinks': 'New Drink'
+            // Add more category defaults as needed
+          };
+          
+          const newName = defaultNames[categoryName] || 'New Item';
+          document.getElementById('preview-item-name').textContent = newName;
+          document.getElementById('item-name-input').value = newName;
         }
       });
     });
-  });
 
-  // Validate category selection before submitting the form
-  document.getElementById('item-form')?.addEventListener('submit', (e) => {
-    if (!document.getElementById('category-field').value) {
-      e.preventDefault();
-      alert('Please select a category before saving');
-      // Scroll to category dropdown
-      document.querySelector('.position-absolute').scrollIntoView({ 
-        behavior: 'smooth',
-        block: 'center'
+    // Validate category selection before submitting the form
+    document.getElementById('item-form')?.addEventListener('submit', (e) => {
+      if (!document.getElementById('category-field').value) {
+        e.preventDefault();
+        alert('Please select a category before saving');
+        document.querySelector('.position-absolute').scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'center'
+        });
+      }
+    });
+
+    // Price calculation functionality
+    document.getElementById('cash-price-input')?.addEventListener('input', function(e) {
+      const cashValue = parseFloat(this.value.replace(/[^0-9.-]/g, '')) || 0;
+      const creditValue = (cashValue * 1.03).toFixed(2);
+      
+      // Update display fields
+      document.getElementById('credit-price-display').value = creditValue;
+      document.getElementById('credit-price-field').value = creditValue;
+      
+      // Update preview
+      updatePreviewDescription();
+    });
+
+    // Format currency on blur
+    document.getElementById('cash-price-input')?.addEventListener('blur', function(e) {
+      const value = parseFloat(this.value.replace(/[^0-9.-]/g, '')) || 0;
+      this.value = value.toLocaleString('en-US', {
+        style: 'decimal',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
       });
+    });
+
+    // Update preview when name changes
+    document.getElementById('item-name-input')?.addEventListener('input', function(e) {
+      document.getElementById('preview-item-name').textContent = this.value || 'Item Name';
+    });
+
+    // Update preview when description changes
+    document.getElementById('item-description-input')?.addEventListener('input', function(e) {
+      updatePreviewDescription();
+    });
+
+    function updatePreviewDescription() {
+      const cashValue = parseFloat(document.getElementById('cash-price-input').value.replace(/[^0-9.-]/g, '')) || 0;
+      const creditValue = (cashValue * 1.03).toFixed(2);
+      const description = document.getElementById('item-description-input').value || 'Item description and all the trimmings.';
+      document.getElementById('preview-description').innerHTML = 
+        `${description} $${creditValue} ($${cashValue.toFixed(2)})`;
     }
   });
-
-  // Price calculation functionality
-  document.getElementById('cash-price-input')?.addEventListener('input', function(e) {
-    // Get raw cash price value (remove any currency symbols)
-    const cashValue = parseFloat(this.value.replace(/[^0-9.-]/g, '')) || 0;
-    
-    // Calculate credit price (3% markup)
-    const creditValue = (cashValue * 1.03).toFixed(2);
-    
-    // Update display fields
-    document.getElementById('credit-price-display').value = creditValue;
-    document.getElementById('credit-price-field').value = creditValue;
-  });
-
-  // Format currency on blur
-  document.getElementById('cash-price-input')?.addEventListener('blur', function(e) {
-    const value = parseFloat(this.value.replace(/[^0-9.-]/g, '')) || 0;
-    this.value = value.toLocaleString('en-US', {
-      style: 'decimal',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    });
-  });
-
-
-
-
 </script>
