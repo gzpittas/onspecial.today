@@ -88,10 +88,10 @@
                 </div>
                 <div class="card-body">
                   <input type="text" 
-                         class: "form-control form-control-lg text-end",
-                         value: "<%= number_to_currency(@item.credit_price || 0, unit: '') %>",
-                         readonly,
-                         id: "credit-price-display">
+                         class="form-control form-control-lg text-end"
+                         value="<%= number_to_currency(@item.credit_price || 0, unit: '') %>"
+                         readonly
+                         id="credit-price-display">
                 </div>
               </div>
             </div>
@@ -111,7 +111,7 @@
                 </div>
               </div>
             </div> 
-          </div>
+          </div>      
 
           <%= form.hidden_field :credit_price, id: "credit-price-field" %>
 
@@ -178,4 +178,31 @@
       });
     }
   });
+
+  // Price calculation functionality
+  document.getElementById('cash-price-input')?.addEventListener('input', function(e) {
+    // Get raw cash price value (remove any currency symbols)
+    const cashValue = parseFloat(this.value.replace(/[^0-9.-]/g, '')) || 0;
+    
+    // Calculate credit price (3% markup)
+    const creditValue = (cashValue * 1.03).toFixed(2);
+    
+    // Update display fields
+    document.getElementById('credit-price-display').value = creditValue;
+    document.getElementById('credit-price-field').value = creditValue;
+  });
+
+  // Format currency on blur
+  document.getElementById('cash-price-input')?.addEventListener('blur', function(e) {
+    const value = parseFloat(this.value.replace(/[^0-9.-]/g, '')) || 0;
+    this.value = value.toLocaleString('en-US', {
+      style: 'decimal',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  });
+
+
+
+  
 </script>
