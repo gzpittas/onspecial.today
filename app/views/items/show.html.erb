@@ -4,53 +4,46 @@
   <div class="row justify-content-center">
     <div class="col-lg-10">
       <div class="bg-light p-5 rounded-3 mb-4 shadow position-relative">
-        <% if @item.persisted? %>
-          <!-- Show mode preview box -->
-          <div class="bg-white p-4 mb-4 shadow" style="max-width: 336px; border-radius: 0;">
-            <div class="px-3 py-2">
-              <h1 class="mb-3 h4"><%= @item.name %></h1>
-              <% if @item.description.present? %>
-                <p class="text-muted small mb-0">
-                  <%= @item.description %>
-                  <% if @item.credit_price.present? || @item.cash_price.present? %>
-                    <%= number_to_currency(@item.credit_price) %> (<%= number_to_currency(@item.cash_price) %>)
-                  <% end %>
-                </p>
+        
+        <!-- Preview box -->
+        <div class="bg-white p-4 mb-4 shadow" style="max-width: 336px; border-radius: 0;">
+          <div class="px-3 py-2">
+            <h1 class="mb-3 h4"><%= @item.persisted? ? @item.name : "Item Name" %></h1>
+            <p class="text-muted small mb-0">
+              <% if @item.persisted? && (@item.credit_price.present? || @item.cash_price.present?) %>
+                <br><%= number_to_currency(@item.credit_price) %> (<%= number_to_currency(@item.cash_price) %>)
               <% end %>
-            </div>
+            </p>
+            <p class="text-muted small mt-2">
+              <strong>Category:</strong> <%= @item.category&.name || "Not selected" %>
+            </p>
           </div>
-        <% else %>
-          <h1 class="mb-4">New Item</h1>
-        <% end %>
+        </div>
 
-        <!-- Category dropdown (only shown when persisted) -->
-        <% if @item.persisted? %>
-          <div class="position-absolute top-0 end-0 mt-4 me-4" style="z-index: 1; width: 300px; left: 90%; transform: translateX(-90%);">
-            <% if @item.category.present? %>
-              <div class="mb-2 text-center">
-                <h2><%= @item.category.name.upcase %></h2>
-              </div>
-            <% end %>
-
-            <div class="dropdown" style="width: 100%;">
-              <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="categoryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                <%= @item.category.present? ? @item.category.name : "Select Category" %>
-              </button>
-              <ul class="dropdown-menu w-100" aria-labelledby="categoryDropdown">
-                <%= form_with(model: @item, id: "category-form", class: "d-none") do |f| %>
-                  <%= f.hidden_field :category_id, id: "category-field" %>
-                <% end %>
-                
-                <li><%= link_to "No Category", "#", class: "dropdown-item", data: { category_id: "" } %></li>
-                <% Category.all.order(:name).each do |category| %>
-                  <li>
-                    <%= link_to category.name, "#", class: "dropdown-item", data: { category_id: category.id } %>
-                  </li>
-                <% end %>
-              </ul>
-            </div>
+        <!-- Category dropdown (always shown) -->
+        <div class="position-absolute top-0 end-0 mt-4 me-4" style="z-index: 1; width: 300px; left: 90%; transform: translateX(-90%);">
+          <div class="mb-2 text-center">
+            <h2><%= @item.category.present? ? @item.category.name.upcase : "SELECT CATEGORY" %></h2>
           </div>
-        <% end %>
+
+          <div class="dropdown" style="width: 100%;">
+            <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="categoryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+              <%= @item.category.present? ? @item.category.name : "Select Category" %>
+            </button>
+            <ul class="dropdown-menu w-100" aria-labelledby="categoryDropdown">
+              <% Category.all.order(:name).each do |category| %>
+                <li>
+                  <%= link_to category.name, "#", class: "dropdown-item", data: { category_id: category.id } %>
+                </li>
+              <% end %>
+            </ul>
+          </div>
+          <% if @item.errors[:category_id].any? %>
+            <div class="text-danger small mt-1">
+              <%= @item.errors[:category_id].first %>
+            </div>
+          <% end %>
+        </div>
 
         <%= form_with(model: @item, id: "item-form") do |form| %>
           <% if @item.errors.any? %>
@@ -64,13 +57,15 @@
             </div>
           <% end %>
 
+          <%= form.hidden_field :category_id, id: "category-field", required: true %>
+
           <div class="row mb-3">
             <div class="col-md-6">
               <%= form.label :name, class: "form-label" %>
               <%= form.text_field :name, 
                   class: "form-control form-control-lg",
                   value: @item.name,
-                  placeholder: @item.persisted? ? "" : "Enter item name" %>
+                  placeholder: "Enter Item Name" %>
             </div>
           </div>
 
@@ -81,7 +76,7 @@
                   class: "form-control", 
                   rows: 3,
                   value: @item.description,
-                  placeholder: @item.persisted? ? "" : "Enter item description" %>
+                  placeholder: "Enter item description" %>
             </div>
           </div>
 
@@ -93,10 +88,10 @@
                 </div>
                 <div class="card-body">
                   <input type="text" 
-                         class="form-control form-control-lg text-end"
-                         value="<%= number_to_currency(@item.credit_price || 0, unit: '') %>"
-                         readonly
-                         id="credit-price-display">
+                         class: "form-control form-control-lg text-end",
+                         value: "<%= number_to_currency(@item.credit_price || 0, unit: '') %>",
+                         readonly,
+                         id: "credit-price-display">
                 </div>
               </div>
             </div>
@@ -125,11 +120,9 @@
             
             <% if @item.persisted? %>
               <%= link_to "New Item", new_item_path, class: "btn btn-outline-primary px-4" %>
-              <%= link_to "Back to Items", items_path, class: "btn btn-outline-secondary px-4" %>
-            <% else %>
-              <%= link_to "Back to Items", items_path, class: "btn btn-outline-secondary px-4",
-                  data: { confirm: "Are you sure you want to cancel? Any unsaved changes will be lost." } %>
             <% end %>
+            <%= link_to "Back to Items", items_path, class: "btn btn-outline-secondary px-4",
+                data: { confirm: @item.persisted? ? nil : "Are you sure you want to cancel? Any unsaved changes will be lost." } %>
           </div>
         <% end %>
         
@@ -149,16 +142,40 @@
   </div>
 </div>
 
-<% if @item.persisted? %>
-  <script>
-    // Handle category selection
-    document.querySelectorAll('.dropdown-item[data-category-id]').forEach(item => {
-      item.addEventListener('click', (e) => {
-        e.preventDefault();
-        const categoryId = e.target.dataset.categoryId;
-        document.getElementById('category-field').value = categoryId;
-        document.getElementById('category-form').requestSubmit();
+<script>
+  // Handle category selection
+  document.querySelectorAll('.dropdown-item[data-category-id]').forEach(item => {
+    item.addEventListener('click', (e) => {
+      e.preventDefault();
+      const categoryId = e.target.dataset.categoryId;
+      const categoryName = e.target.textContent;
+      
+      // Update the hidden field
+      document.getElementById('category-field').value = categoryId;
+      
+      // Update the dropdown button text
+      document.getElementById('categoryDropdown').textContent = categoryName;
+      
+      // Update the category name in preview
+      const categoryHeaders = document.querySelectorAll('h2');
+      categoryHeaders.forEach(header => {
+        if (header.textContent.includes('CATEGORY')) {
+          header.textContent = categoryName.toUpperCase();
+        }
       });
     });
-  </script>
-<% end %>
+  });
+
+  // Validate category selection before submitting the form
+  document.getElementById('item-form')?.addEventListener('submit', (e) => {
+    if (!document.getElementById('category-field').value) {
+      e.preventDefault();
+      alert('Please select a category before saving');
+      // Scroll to category dropdown
+      document.querySelector('.position-absolute').scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'center'
+      });
+    }
+  });
+</script>

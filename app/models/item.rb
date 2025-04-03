@@ -1,6 +1,6 @@
 # app/models/item.rb
 class Item < ApplicationRecord
-  belongs_to :category, optional: true
+  belongs_to :category
   has_many :menu_items
   has_many :menus, through: :menu_items
   
@@ -9,6 +9,7 @@ class Item < ApplicationRecord
   before_validation :convert_prices_to_float
 
   validates :name, presence: true
+  validates :category, presence: true
   
   def calculate_prices
     if credit_price_changed? && !cash_price_changed?
