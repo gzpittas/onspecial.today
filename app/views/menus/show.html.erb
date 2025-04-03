@@ -4,6 +4,7 @@
       <h1><%= @menu.title.upcase %></h1>
       <p class="text-muted"><%= @menu.date.strftime("%A, %B %d, %Y").upcase %></p>
       <div class="d-flex justify-content-center gap-2">
+        <%= link_to "Back to Menus", menus_path, class: "btn btn-secondary" %>
         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addItemModal">
           + Add Item to Menu
         </button>
