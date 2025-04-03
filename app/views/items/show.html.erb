@@ -6,7 +6,7 @@
       <div class="bg-light p-5 rounded-3 mb-4 shadow position-relative">
         
         <!-- Preview box -->
-        <div class="bg-white p-4 mb-4 shadow" style="max-width: 450px; border-radius: 0;">
+        <div class="bg-white p-4 mb-4 shadow" style="max-width: 375px; border-radius: 0;">
           <div class="px-3 py-2">
             <h1 class="mb-2 h4" id="preview-item-name"><%= @item.persisted? ? @item.name : "Item Name" %></h1>
             <p class="small mb-2" id="preview-description">
@@ -18,14 +18,13 @@
               <% if @item.persisted? && (@item.credit_price.present? || @item.cash_price.present?) %>
                 <%= number_to_currency(@item.credit_price) %> (<%= number_to_currency(@item.cash_price) %>)
               <% else %>
-                $10.00 ($9.70)
+                $10.31 ($10.00)
               <% end %>
             </p>
-            
           </div>
         </div>   
 
-        <!-- Category dropdown (always shown) -->
+        <!-- Category dropdown -->
         <div class="position-absolute top-0 end-0 mt-4 me-4" style="z-index: 1; width: 300px; left: 90%; transform: translateX(-90%);">
           <div class="mb-2 text-center">
             <h2 id="category-header"><%= @item.category.present? ? @item.category.name.upcase : "SELECT CATEGORY" %></h2>
@@ -169,9 +168,6 @@
         // Update the category header
         document.getElementById('category-header').textContent = categoryName.toUpperCase();
         
-        // Update the category in the preview box
-        document.getElementById('preview-category').innerHTML = `<strong>Category:</strong> ${categoryName}`;
-        
         // If this is a new item, update the preview name when category changes
         if (!<%= @item.persisted? %>) {
           const defaultNames = {
@@ -179,7 +175,6 @@
             'Entrees': 'New Entree',
             'Desserts': 'New Dessert',
             'Drinks': 'New Drink'
-            // Add more category defaults as needed
           };
           
           const newName = defaultNames[categoryName] || 'New Item';
@@ -201,10 +196,13 @@
       }
     });
 
-    // Price calculation functionality
+    // FIXED Price calculation functionality
     document.getElementById('cash-price-input')?.addEventListener('input', function(e) {
+      // Get raw cash price value (remove any currency symbols)
       const cashValue = parseFloat(this.value.replace(/[^0-9.-]/g, '')) || 0;
-      const creditValue = (cashValue * 1.03).toFixed(2);
+      
+      // Calculate credit price (creditPrice = cashPrice / 0.97)
+      const creditValue = (cashValue / 0.97).toFixed(2);
       
       // Update display fields
       document.getElementById('credit-price-display').value = creditValue;
@@ -236,7 +234,7 @@
 
     function updatePreviewDescription() {
       const cashValue = parseFloat(document.getElementById('cash-price-input').value.replace(/[^0-9.-]/g, '')) || 0;
-      const creditValue = (cashValue * 1.03).toFixed(2);
+      const creditValue = (cashValue / 0.97).toFixed(2);
       const description = document.getElementById('item-description-input').value || 'Item description and all the trimmings.';
       document.getElementById('preview-description').innerHTML = 
         `${description} $${creditValue} ($${cashValue.toFixed(2)})`;
