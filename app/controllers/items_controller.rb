@@ -1,13 +1,6 @@
 class ItemsController < ApplicationController
   before_action :set_item, only: %i[ show edit update destroy ]
 
-  # GET /items or /items.json
-  # app/controllers/items_controller.rb
-  def index
-    @items = Item.all.order(:name) # or whatever ordering you prefer
-  end
-
-  # app/controllers/items_controller.rb
   def search
     query = params[:q].to_s.strip
     return render json: { error: "Query too short" }, status: :bad_request if query.length < 3
@@ -55,13 +48,21 @@ class ItemsController < ApplicationController
     end
   end
 
+   # GET /items
+  def index
+    @items = Item.includes(:category).all.order(:name)
+  end
+
   # GET /items/new
   def new
     @item = Item.new
+    render 'show' # This will use the show template for new items
   end
 
   # GET /items/1/edit
   def edit
+    @item = Item.find(params[:id])
+    render 'show' # This will use the show template for editing
   end
 
   # POST /items or /items.json

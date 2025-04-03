@@ -1,65 +1,58 @@
-<% content_for :title, @item.name %>
+<% content_for :title, @item.persisted? ? @item.name : "New Item" %>
 
 <div class="container mt-5">
-
   <div class="row justify-content-center">
-
     <div class="col-lg-10">
-
-      <div class="bg-secondary bg-opacity-10 p-5 rounded-3 mb-4 shadow position-relative">
-        
-        
-
-        <div class="bg-white p-4 mb-4 shadow" style="max-width: 336px; border-radius: 0;">
-          <div class="px-3 py-2">
-            <h1 class="mb-3 h4"><%= @item.name %></h1>
-            <% if @item.description.present? %>
-              <p class="text-muted small mb-0">
-                <%= @item.description %>
-                <% if @item.credit_price.present? || @item.cash_price.present? %>
-                  <%= number_to_currency(@item.credit_price) %> (<%= number_to_currency(@item.cash_price) %>)
-                <% end %>
-              </p>
-            <% end %>
-            
-
-
-            <!-- Category display and dropdown in upper right corner -->
-            <div class="position-absolute top-0 end-0 mt-4 me-4" style="z-index: 1; width: 300px; left: 90%; transform: translateX(-90%);">
-              <% if @item.category.present? %>
-                <div class="mb-2 text-center">
-                  <h2><%= @item.category.name.upcase %></h2>
-                </div>
+      <div class="bg-light p-5 rounded-3 mb-4 shadow position-relative">
+        <% if @item.persisted? %>
+          <!-- Show mode preview box -->
+          <div class="bg-white p-4 mb-4 shadow" style="max-width: 336px; border-radius: 0;">
+            <div class="px-3 py-2">
+              <h1 class="mb-3 h4"><%= @item.name %></h1>
+              <% if @item.description.present? %>
+                <p class="text-muted small mb-0">
+                  <%= @item.description %>
+                  <% if @item.credit_price.present? || @item.cash_price.present? %>
+                    <%= number_to_currency(@item.credit_price) %> (<%= number_to_currency(@item.cash_price) %>)
+                  <% end %>
+                </p>
               <% end %>
-
-              <div class="dropdown" style="width: 100%;">
-                <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="categoryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                  <%= @item.category.present? ? @item.category.name : "Select Category" %>
-                </button>
-                <ul class="dropdown-menu w-100" aria-labelledby="categoryDropdown">
-                  <%= form_with(model: @item, id: "category-form", class: "d-none") do |f| %>
-                    <%= f.hidden_field :category_id, id: "category-field" %>
-                  <% end %>
-                  
-                  <li><%= link_to "No Category", "#", class: "dropdown-item", data: { category_id: "" } %></li>
-                  <% Category.all.order(:name).each do |category| %>
-                    <li>
-                      <%= link_to category.name, "#", class: "dropdown-item", data: { category_id: category.id } %>
-                    </li>
-                  <% end %>
-                </ul>
-              </div>
             </div>
-
-
-
-
-
-
           </div>
-        </div>
-        
-        <%= form_with(model: @item, id: "edit-item-form", class: "edit-item-form") do |form| %>
+        <% else %>
+          <h1 class="mb-4">New Item</h1>
+        <% end %>
+
+        <!-- Category dropdown (only shown when persisted) -->
+        <% if @item.persisted? %>
+          <div class="position-absolute top-0 end-0 mt-4 me-4" style="z-index: 1; width: 300px; left: 90%; transform: translateX(-90%);">
+            <% if @item.category.present? %>
+              <div class="mb-2 text-center">
+                <h2><%= @item.category.name.upcase %></h2>
+              </div>
+            <% end %>
+
+            <div class="dropdown" style="width: 100%;">
+              <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="categoryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <%= @item.category.present? ? @item.category.name : "Select Category" %>
+              </button>
+              <ul class="dropdown-menu w-100" aria-labelledby="categoryDropdown">
+                <%= form_with(model: @item, id: "category-form", class: "d-none") do |f| %>
+                  <%= f.hidden_field :category_id, id: "category-field" %>
+                <% end %>
+                
+                <li><%= link_to "No Category", "#", class: "dropdown-item", data: { category_id: "" } %></li>
+                <% Category.all.order(:name).each do |category| %>
+                  <li>
+                    <%= link_to category.name, "#", class: "dropdown-item", data: { category_id: category.id } %>
+                  </li>
+                <% end %>
+              </ul>
+            </div>
+          </div>
+        <% end %>
+
+        <%= form_with(model: @item, id: "item-form") do |form| %>
           <% if @item.errors.any? %>
             <div class="alert alert-danger">
               <h2><%= pluralize(@item.errors.count, "error") %> prohibited saving:</h2>
@@ -76,7 +69,8 @@
               <%= form.label :name, class: "form-label" %>
               <%= form.text_field :name, 
                   class: "form-control form-control-lg",
-                  value: @item.name %>
+                  value: @item.name,
+                  placeholder: @item.persisted? ? "" : "Enter item name" %>
             </div>
           </div>
 
@@ -86,13 +80,12 @@
               <%= form.text_area :description, 
                   class: "form-control", 
                   rows: 3,
-                  value: @item.description %>
+                  value: @item.description,
+                  placeholder: @item.persisted? ? "" : "Enter item description" %>
             </div>
           </div>
 
           <div class="row mb-4">
-            
-
             <div class="col-md-6">
               <div class="card mb-3">
                 <div class="card-header bg-secondary text-white">
@@ -108,7 +101,7 @@
               </div>
             </div>
 
-             <div class="col-md-6">
+            <div class="col-md-6">
               <div class="card mb-3">
                 <div class="card-header bg-warning text-black">
                   <%= form.label :cash_price, "Cash Price", class: "form-label mb-0" %>
@@ -123,43 +116,49 @@
                 </div>
               </div>
             </div> 
-
-
-
           </div>
 
           <%= form.hidden_field :credit_price, id: "credit-price-field" %>
 
           <div class="d-flex gap-4">
-            <%= form.submit "Update Item", class: "btn btn-warning" %>
-            <%= link_to "Back to Items", items_path, class: "btn btn-outline-secondary px-4" %>
-          </div>
-
-        <% end %>
+            <%= form.submit @item.persisted? ? "Update Item" : "Create Item", class: "btn btn-warning" %>
             
-        <div class="mt-3 text-end">
-          <%= button_to "Delete Item", @item,
-                        method: :delete,
-                        form: { 
-                          class: "delete-form",
-                          data: { turbo_confirm: "Are you sure?" } 
-                        },
-                        class: "btn btn-danger" %>
-        </div>
+            <% if @item.persisted? %>
+              <%= link_to "New Item", new_item_path, class: "btn btn-outline-primary px-4" %>
+              <%= link_to "Back to Items", items_path, class: "btn btn-outline-secondary px-4" %>
+            <% else %>
+              <%= link_to "Back to Items", items_path, class: "btn btn-outline-secondary px-4",
+                  data: { confirm: "Are you sure you want to cancel? Any unsaved changes will be lost." } %>
+            <% end %>
+          </div>
+        <% end %>
         
+        <% if @item.persisted? %>
+          <div class="mt-3 text-end">
+            <%= button_to "Delete Item", @item,
+                          method: :delete,
+                          form: { 
+                            class: "delete-form",
+                            data: { turbo_confirm: "Are you sure?" } 
+                          },
+                          class: "btn btn-danger" %>
+          </div>
+        <% end %>
       </div>
     </div>
   </div>
 </div>
 
-<script>
-  // Handle category selection
-  document.querySelectorAll('.dropdown-item[data-category-id]').forEach(item => {
-    item.addEventListener('click', (e) => {
-      e.preventDefault();
-      const categoryId = e.target.dataset.categoryId;
-      document.getElementById('category-field').value = categoryId;
-      document.getElementById('category-form').requestSubmit();
+<% if @item.persisted? %>
+  <script>
+    // Handle category selection
+    document.querySelectorAll('.dropdown-item[data-category-id]').forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.preventDefault();
+        const categoryId = e.target.dataset.categoryId;
+        document.getElementById('category-field').value = categoryId;
+        document.getElementById('category-form').requestSubmit();
+      });
     });
-  });
-</script>
+  </script>
+<% end %>
