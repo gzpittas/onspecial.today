@@ -4,11 +4,13 @@
   <div class="row justify-content-center">
     <div class="col-lg-10">
       <div class="bg-light p-5 rounded-3 mb-4 shadow position-relative">
-        
+
         <!-- Preview box -->
         <div class="bg-white p-4 mb-4 shadow" style="max-width: 375px; border-radius: 0;">
           <div class="px-3 py-2">
-            <h1 class="mb-2 h4" id="preview-item-name"><%= @item.persisted? ? @item.name : "Item Name" %></h1>
+            <h1 class="mb-2 h4" id="preview-item-name">
+              <%= @item.persisted? ? @item.name : "Item Name" %>
+            </h1>
             <p class="small mb-2" id="preview-description">
               <% if @item.description.present? %>
                 <%= @item.description %>
@@ -22,7 +24,7 @@
               <% end %>
             </p>
           </div>
-        </div>   
+        </div>
 
         <!-- Category dropdown -->
         <div class="position-absolute top-0 end-0 mt-4 me-4" style="z-index: 1; width: 300px; left: 90%; transform: translateX(-90%);">
@@ -49,6 +51,7 @@
           <% end %>
         </div>
 
+        <!-- Form start -->
         <%= form_with(model: @item, id: "item-form") do |form| %>
           <% if @item.errors.any? %>
             <div class="alert alert-danger">
@@ -152,92 +155,51 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // Handle category selection
-    document.querySelectorAll('.dropdown-item[data-category-id]').forEach(item => {
-      item.addEventListener('click', (e) => {
-        e.preventDefault();
-        const categoryId = e.target.dataset.categoryId;
-        const categoryName = e.target.textContent;
-        
-        // Update the hidden field
-        document.getElementById('category-field').value = categoryId;
-        
-        // Update the dropdown button text
-        document.getElementById('categoryDropdown').textContent = categoryName;
-        
-        // Update the category header
-        document.getElementById('category-header').textContent = categoryName.toUpperCase();
-        
-        // If this is a new item, update the preview name when category changes
-        if (!<%= @item.persisted? %>) {
-          const defaultNames = {
-            'Appetizers': 'New Appetizer',
-            'Entrees': 'New Entree',
-            'Desserts': 'New Dessert',
-            'Drinks': 'New Drink'
-          };
-          
-          const newName = defaultNames[categoryName] || 'New Item';
-          document.getElementById('preview-item-name').textContent = newName;
-          document.getElementById('item-name-input').value = newName;
-        }
-      });
-    });
-
-    // Validate category selection before submitting the form
-    document.getElementById('item-form')?.addEventListener('submit', (e) => {
-      if (!document.getElementById('category-field').value) {
-        e.preventDefault();
-        alert('Please select a category before saving');
-        document.querySelector('.position-absolute').scrollIntoView({ 
-          behavior: 'smooth',
-          block: 'center'
-        });
-      }
-    });
-
-    // FIXED Price calculation functionality
-    document.getElementById('cash-price-input')?.addEventListener('input', function(e) {
-      // Get raw cash price value (remove any currency symbols)
-      const cashValue = parseFloat(this.value.replace(/[^0-9.-]/g, '')) || 0;
+    const cashPriceInput = document.getElementById('cash-price-input');
+    let rawCashValue = parseFloat(cashPriceInput.value.replace(/[^0-9.]/g, '')) || 0;
+    
+    cashPriceInput.addEventListener('input', function(e) {
+      const inputValue = this.value.replace(/[^0-9.]/g, '');
+      rawCashValue = inputValue ? parseFloat(inputValue) : 0;
+      const creditValue = rawCashValue ? (rawCashValue / 0.97).toFixed(2) : '0.00';
       
-      // Calculate credit price (creditPrice = cashPrice / 0.97)
-      const creditValue = (cashValue / 0.97).toFixed(2);
-      
-      // Update display fields
       document.getElementById('credit-price-display').value = creditValue;
       document.getElementById('credit-price-field').value = creditValue;
-      
-      // Update preview
       updatePreviewDescription();
     });
 
-    // Format currency on blur
-    document.getElementById('cash-price-input')?.addEventListener('blur', function(e) {
-      const value = parseFloat(this.value.replace(/[^0-9.-]/g, '')) || 0;
-      this.value = value.toLocaleString('en-US', {
-        style: 'decimal',
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      });
+    cashPriceInput.addEventListener('blur', function(e) {
+      if (rawCashValue > 0) {
+        this.value = rawCashValue.toLocaleString('en-US', {
+          style: 'decimal',
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+      } else {
+        this.value = '';
+        rawCashValue = 0;
+      }
     });
 
-    // Update preview when name changes
+    cashPriceInput.addEventListener('focus', function(e) {
+      this.value = rawCashValue > 0 ? rawCashValue.toString() : '';
+    });
+
     document.getElementById('item-name-input')?.addEventListener('input', function(e) {
       document.getElementById('preview-item-name').textContent = this.value || 'Item Name';
     });
 
-    // Update preview when description changes
     document.getElementById('item-description-input')?.addEventListener('input', function(e) {
       updatePreviewDescription();
     });
 
     function updatePreviewDescription() {
-      const cashValue = parseFloat(document.getElementById('cash-price-input').value.replace(/[^0-9.-]/g, '')) || 0;
-      const creditValue = (cashValue / 0.97).toFixed(2);
+      const creditValue = rawCashValue ? (rawCashValue / 0.97).toFixed(2) : '0.00';
       const description = document.getElementById('item-description-input').value || 'Item description and all the trimmings.';
       document.getElementById('preview-description').innerHTML = 
-        `${description} $${creditValue} ($${cashValue.toFixed(2)})`;
+        `${description} $${creditValue} ($${rawCashValue ? rawCashValue.toFixed(2) : '0.00'})`;
     }
+
+    updatePreviewDescription();
   });
 </script>
