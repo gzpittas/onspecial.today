@@ -20,7 +20,7 @@
               <% if @item.persisted? && (@item.credit_price.present? || @item.cash_price.present?) %>
                 <%= number_to_currency(@item.credit_price) %> (<%= number_to_currency(@item.cash_price) %>)
               <% else %>
-                $10.31 ($10.00)
+                $0.00 (---)
               <% end %>
             </p>
           </div>
