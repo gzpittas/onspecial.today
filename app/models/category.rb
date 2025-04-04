@@ -6,7 +6,6 @@ class Category < ApplicationRecord
   has_many :items, dependent: :nullify
 
   validates :name, presence: true
-  validates :position, numericality: { only_integer: true, allow_nil: true }
 
   validates :note, length: { maximum: 500 }, allow_blank: true
 end
