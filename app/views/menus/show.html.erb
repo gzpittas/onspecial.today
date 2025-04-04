@@ -20,10 +20,13 @@
     <div class="card-body menu-items-container">
       <% @menu_categories.each do |menu_category| %>
         <% if menu_category.menu_items.any? %>
-          <div class="menu-category mb-5" id="category-<%= menu_category.id %>">
+          <div class="menu-category mb-1" id="category-<%= menu_category.id %>">
             <div class="text-center">
               <h2 class="fw-bold" style="color: rgba(0, 0, 0, 0.5);"><%= menu_category.category.name.upcase %></h2>
-              <hr class="category-divider mx-auto">
+              <% if menu_category.category.note.present? %>
+                <p class="category-note text-muted mb-1"><%= menu_category.category.note %></p>
+              <% end %>
+              <hr class="category-divider mx-auto mt-2">
             </div>
             
             <% menu_category.menu_items.each do |menu_item| %>
@@ -239,6 +242,14 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <style>
+
+  .category-note {
+    font-size: 0.9rem;
+    font-style: italic;
+    max-width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+  }
   /* Search results dropdown styling */
   .search-results-dropdown {
     position: absolute;

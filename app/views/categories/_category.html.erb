@@ -4,4 +4,9 @@
     <%= category.name %>
   </p>
 
+  <% if category.note.present? %>
+    <p class="category-note">
+      <small><%= category.note %></small>
+    </p>
+  <% end %>
 </div>
