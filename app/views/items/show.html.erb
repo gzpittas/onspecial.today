@@ -194,6 +194,14 @@
     border-radius: 0;
   }
 
+  .is-invalid {
+    border-color: #dc3545 !important;
+  }
+
+  .is-invalid + .dropdown-menu {
+    border-color: #dc3545 !important;
+  }
+
 </style>
 
 <script>
@@ -214,9 +222,21 @@
         // Update the category header
         document.getElementById('category-header').textContent = categoryName.toUpperCase();
         
-        // Submit the form
-        document.getElementById('item-form').submit();
+        // Remove invalid class when category is selected
+        document.getElementById('categoryDropdown').classList.remove('is-invalid');
       });
+    });
+
+    // Form submission validation
+    document.getElementById('item-form')?.addEventListener('submit', function(e) {
+      const categoryField = document.getElementById('category-field');
+      if (!categoryField.value) {
+        e.preventDefault();
+        alert('Please select a category');
+        // Highlight the dropdown to draw attention
+        document.getElementById('categoryDropdown').classList.add('is-invalid');
+        document.getElementById('categoryDropdown').focus();
+      }
     });
 
     // Initialize the hidden field if there's a preselected category
@@ -278,13 +298,12 @@
     updatePreviewDescription();
   });
 
-
   // More robust price handling
-    function formatCurrency(value) {
-      return parseFloat(value || 0).toLocaleString('en-US', {
-        style: 'decimal',
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      });
-    }
+  function formatCurrency(value) {
+    return parseFloat(value || 0).toLocaleString('en-US', {
+      style: 'decimal',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  }
 </script>

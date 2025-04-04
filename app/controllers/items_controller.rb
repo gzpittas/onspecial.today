@@ -72,7 +72,7 @@ class ItemsController < ApplicationController
       # Redirect to the show page to add prices
       redirect_to @item, notice: "Item created! Please add pricing."
     else
-      render :new # Re-render the new form with errors
+      render :new, status: :unprocessable_entity
     end
   end
 
