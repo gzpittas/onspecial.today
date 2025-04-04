@@ -27,7 +27,7 @@
         </div>
 
         <!-- Category dropdown -->
-        <div class="position-absolute top-0 end-0 mt-4 me-4" style="z-index: 1; width: 300px; left: 90%; transform: translateX(-90%);">
+        <div class="position-absolute top-0 end-0 mt-5 me-4" style="z-index: 1; width: 300px; left: 90%; transform: translateX(-90%);">
           <div class="mb-2 text-center">
             <h2 id="category-header"><%= @item.category.present? ? @item.category.name.upcase : "SELECT CATEGORY" %></h2>
           </div>
@@ -52,7 +52,7 @@
         </div>
 
         <!-- Form start -->
-        <%= form_with(model: @item, id: "item-form") do |form| %>
+        <%= form_with(model: @item, id: "item-form", local: true) do |form| %>
           <% if @item.errors.any? %>
             <div class="alert alert-danger">
               <h2><%= pluralize(@item.errors.count, "error") %> prohibited saving:</h2>
@@ -133,7 +133,7 @@
           
             <%= link_to "Back to Items", items_path, class: "btn btn-outline-secondary px-4",
                 data: { confirm: @item.persisted? ? nil : "Are you sure you want to cancel? Any unsaved changes will be lost." } %>
-            <%= link_to "Back to Menus", menus_path, class: "btn btn-outline-secondary px-4" %>    
+            <%= link_to "Back to Menus", menus_path, class: "btn btn-outline-secondary px-4" %> 
           </div>
         <% end %>
         
@@ -153,8 +153,83 @@
   </div>
 </div>
 
+<style type="text/css">
+  
+  .accordion {
+    overflow: hidden;
+    border-radius: 0.5rem !important;
+    border: 1px solid #dee2e6 !important;
+  }
+
+  .accordion-item {
+    border: 0 !important;
+    margin: 0 !important;
+  }
+
+  .accordion-item:first-child .accordion-button {
+    border-top-left-radius: 0.5rem !important;
+    border-top-right-radius: 0.5rem !important;
+  }
+
+  .accordion-item:last-child .accordion-collapse {
+    border-bottom-left-radius: 0.5rem !important;
+    border-bottom-right-radius: 0.5rem !important;
+  }
+
+  /* Add to your stylesheet */
+  .category-dropdown-container {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 1;
+    width: 300px;
+    margin-top: 1rem;
+    margin-right: 1rem;
+    left: 90%;
+    transform: translateX(-90%);
+  }
+
+  .preview-box {
+    max-width: 375px;
+    border-radius: 0;
+  }
+
+</style>
+
 <script>
   document.addEventListener('DOMContentLoaded', function() {
+    // Category dropdown handling
+    document.querySelectorAll('.dropdown-item[data-category-id]').forEach(item => {
+      item.addEventListener('click', function(e) {
+        e.preventDefault();
+        const categoryId = this.getAttribute('data-category-id');
+        const categoryName = this.textContent;
+        
+        // Update the dropdown button text
+        document.getElementById('categoryDropdown').textContent = categoryName;
+        
+        // Update the hidden field value
+        document.getElementById('category-field').value = categoryId;
+        
+        // Update the category header
+        document.getElementById('category-header').textContent = categoryName.toUpperCase();
+        
+        // Submit the form
+        document.getElementById('item-form').submit();
+      });
+    });
+
+    // Initialize the hidden field if there's a preselected category
+    const initialCategory = document.getElementById('categoryDropdown').textContent.trim();
+    if (initialCategory !== 'Select Category') {
+      const initialItem = Array.from(document.querySelectorAll('.dropdown-item'))
+        .find(item => item.textContent.trim() === initialCategory);
+      if (initialItem) {
+        document.getElementById('category-field').value = initialItem.getAttribute('data-category-id');
+      }
+    }
+
+    // Rest of your existing price calculation code
     const cashPriceInput = document.getElementById('cash-price-input');
     let rawCashValue = parseFloat(cashPriceInput.value.replace(/[^0-9.]/g, '')) || 0;
     
@@ -202,4 +277,14 @@
 
     updatePreviewDescription();
   });
+
+
+  // More robust price handling
+    function formatCurrency(value) {
+      return parseFloat(value || 0).toLocaleString('en-US', {
+        style: 'decimal',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
 </script>

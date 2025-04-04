@@ -1,3 +1,7 @@
+import "@popperjs/core"
+import "bootstrap"
+
+
 function initializeItemSearch(searchInputId, resultsContainerId, itemsData) {
   const searchInput = document.getElementById(searchInputId);
   const searchResults = document.getElementById(resultsContainerId);

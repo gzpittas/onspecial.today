@@ -9,6 +9,8 @@ Rails.application.routes.draw do
     end
   end
 
+  get '/test_accordion', to: 'application#test_accordion'
+
   resources :menu_items, only: [:create, :destroy, :show] do
     member do
       patch :update_position  # For drag-and-drop reordering

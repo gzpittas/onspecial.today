@@ -106,9 +106,9 @@
                 <div class="menu-item">
                   <h5><%= menu_item.item.name.upcase %></h5>
                   <div class="item-details">
-                    <% if menu_item.item.description.present? %>
+                    <% if menu_item.item.description.present? %> 
                       <p class="mb-1">
-                        <%= menu_item.item.description %>. 
+                        <%= menu_item.item.description %>&nbsp;&nbsp;
                         $<%= sprintf('%.2f', menu_item.item.credit_price) %>
                         (<%= sprintf('%.2f', menu_item.item.cash_price) %>)
                       </p>
@@ -129,7 +129,7 @@
   </div>
 
   <div class="print-actions no-print">
-    <%= link_to "Back to Menu", menu_path(@menu), class: "btn btn-primary me-2" %>
+    <%= link_to "Back to Menu", menu_path(@menu), class: "btn btn-secondary me-2" %>
     <button onclick="window.print()" class="btn btn-success">
       <i class="bi bi-printer-fill"></i> Print Menu
     </button>

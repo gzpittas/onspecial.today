@@ -15,7 +15,7 @@
       <!-- Search bar remains the same -->
       <div class="mb-4 position-relative">
         <div class="row justify-content-center">
-          <div class="col-md-8">
+          <div class="col-md-9">
             <div class="search-container">
               <div class="input-group">
                 <input type="text" id="itemsSearch" class="form-control search-input" 
@@ -44,7 +44,7 @@
                       data-bs-target="#collapse<%= category.id %>" 
                       aria-expanded="false" 
                       aria-controls="collapse<%= category.id %>">
-                <%= category.name.upcase %> (<%= category_items.count %>)
+                <%= category.name.upcase %> &nbsp; <%= category_items.count %>
               </button>
             </h2>
             <div id="collapse<%= category.id %>" class="accordion-collapse collapse" 
