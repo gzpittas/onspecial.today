@@ -51,6 +51,8 @@ class ItemsController < ApplicationController
    # GET /items
   def index
     @items = Item.includes(:category).all.order(:name)
+    @highlight_item = params[:highlight]
+    @open_category = params[:open_category]
   end
 
   # GET /items/new
@@ -66,14 +68,21 @@ class ItemsController < ApplicationController
   end
 
   # POST /items or /items.json
+  # app/controllers/items_controller.rb
   def create
     @item = Item.new(item_params)
+    
     if @item.save
-      # Redirect to the show page to add prices
-      redirect_to @item, notice: "Item created! Please add pricing."
+      redirect_to items_path, notice: 'Item created successfully'
     else
+      # This preserves all validation errors including any uniqueness errors
+      # that were caught by Rails validations (not database level)
       render :new, status: :unprocessable_entity
     end
+  rescue ActiveRecord::RecordNotUnique => e
+    # This catches database-level uniqueness violations that bypass Rails validations
+    @item.errors.add(:name, 'already exists')
+    render :new, status: :unprocessable_entity
   end
 
 
@@ -92,6 +101,19 @@ class ItemsController < ApplicationController
     @item = Item.find(params[:id])
     @item.destroy
     redirect_to items_path, notice: "Item was successfully deleted.", status: :see_other
+  end
+
+  # app/controllers/items_controller.rb
+  def check_name
+    name = params[:name].to_s.strip
+    item = Item.where('LOWER(name) = ?', name.downcase).first
+    exists = item.present?
+    
+    render json: { 
+      exists: exists,
+      item_id: item&.id,
+      category_id: item&.category_id
+    }
   end
 
   private

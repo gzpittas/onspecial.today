@@ -8,7 +8,14 @@ class Item < ApplicationRecord
 
   before_validation :convert_prices_to_float
 
-  validates :name, presence: true
+  validates :name, 
+            presence: true,
+            uniqueness: { 
+              case_sensitive: false,
+              scope: :category_id,
+              message: "Item name already exists in this category" 
+            },
+            on: :create
   validates :category, presence: true
   
   def calculate_prices

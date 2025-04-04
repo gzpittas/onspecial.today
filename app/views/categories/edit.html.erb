@@ -1,6 +1,7 @@
 <% content_for :title, "Editing category" %>
 
-<h1>Editing category</h1>
+<h1><%= @category.name.upcase %></h1>
+<p><%= @category.note %></p>
 
 <%= render "form", category: @category %>
 

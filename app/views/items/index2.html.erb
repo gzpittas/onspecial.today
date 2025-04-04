@@ -1,0 +1,310 @@
+<% content_for :title, "Items" %>
+
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-8">
+      <!-- Header and buttons remain the same -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">ITEMS</h1>
+        <div class="d-flex gap-3">
+          <%= link_to "<- Back to Menus", menus_path, class: 'btn btn-secondary' %>
+          <%= link_to "Add New Item", new_item_path, class: 'btn btn-primary' %>
+        </div>
+      </div>
+
+      <!-- Search bar remains the same -->
+      <div class="mb-4 position-relative">
+        <div class="row justify-content-center">
+          <div class="col-md-9">
+            <div class="search-container">
+              <div class="input-group">
+                <input type="text" id="itemsSearch" class="form-control search-input" 
+                       placeholder="Search Items..." aria-label="Search Items"
+                       autocomplete="off">
+                <button class="btn btn-outline-secondary" type="button" id="searchButton">
+                  <i class="bi bi-search"></i>
+                </button>
+              </div>
+              <div id="searchResults" class="search-results-dropdown"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Accordion section -->
+      <div class="accordion mb-4" id="categoriesAccordion">
+        <% Category.all.order(:name).each do |category| %>
+          <% category_items = @items.where(category: category) %>
+          <% next if category_items.empty? %>
+          
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" 
+                      data-bs-toggle="collapse" 
+                      data-bs-target="#collapse<%= category.id %>" 
+                      aria-expanded="false" 
+                      aria-controls="collapse<%= category.id %>">
+                <%= category.name.upcase %> &nbsp; <%= category_items.count %>
+              </button>
+            </h2>
+            <div id="collapse<%= category.id %>" class="accordion-collapse collapse" 
+                 data-bs-parent="#categoriesAccordion">
+              <div class="accordion-body p-0">
+                <div class="list-group" style="max-height: 60vh; overflow-y: auto;">
+                  <% category_items.each do |item| %>
+                    <%= link_to item_path(item), class: "list-group-item list-group-item-action item-entry", data: { name: item.name.downcase, description: item.description.to_s.downcase, id: item.id } do %>
+                      <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                          <strong class="text-uppercase item-name"><%= item.name %></strong>
+                          <% if item.description.present? %>
+                            <p class="text-muted small mb-0 item-description"><%= item.description %></p>
+                          <% end %>
+                        </div>
+                        <div class="text-end">
+                          <span class="text-dark"><%= number_to_currency(item.credit_price) %></span>
+                          <span class="text-muted small d-block">(<%= number_to_currency(item.cash_price) %>)</span>
+                        </div>
+                      </div>
+                    <% end %>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+
+        <% uncategorized_items = @items.where(category: nil) %>
+        <% unless uncategorized_items.empty? %>
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" 
+                      data-bs-toggle="collapse" 
+                      data-bs-target="#collapseUncategorized" 
+                      aria-expanded="false" 
+                      aria-controls="collapseUncategorized">
+                UNCATEGORIZED (<%= uncategorized_items.count %>)
+              </button>
+            </h2>
+            <div id="collapseUncategorized" class="accordion-collapse collapse" 
+                 data-bs-parent="#categoriesAccordion">
+              <div class="accordion-body p-0">
+                <div class="list-group" style="max-height: 60vh; overflow-y: auto;">
+                  <% uncategorized_items.each do |item| %>
+                    <%= link_to item_path(item), class: "list-group-item list-group-item-action item-entry", data: { name: item.name.downcase, description: item.description.to_s.downcase, id: item.id } do %>
+                      <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                          <strong class="text-uppercase item-name"><%= item.name %></strong>
+                          <% if item.description.present? %>
+                            <p class="text-muted small mb-0 item-description"><%= item.description %></p>
+                          <% end %>
+                        </div>
+                        <div class="text-end">
+                          <span class="text-dark"><%= number_to_currency(item.credit_price) %></span>
+                          <span class="text-muted small d-block">(<%= number_to_currency(item.cash_price) %>)</span>
+                        </div>
+                      </div>
+                    <% end %>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Search bar styles remain unchanged */
+  .search-container {
+    position: relative;
+  }
+  
+  .search-results-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    max-height: 400px;
+    overflow-y: auto;
+    background: white;
+    border: 1px solid #ced4da;
+    border-radius: 0 0 4px 4px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    display: none;
+  }
+  
+  .search-result-item {
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .search-result-item:hover {
+    background-color: #f8f9fa;
+  }
+  
+  .search-result-item .item-name {
+    font-weight: bold;
+    margin-bottom: 2px;
+  }
+  
+  .search-result-item .item-description {
+    font-size: 0.85em;
+    color: #6c757d;
+  }
+  
+  .search-result-item .item-price {
+    font-size: 0.9em;
+  }
+  
+  .highlight {
+    background-color: #E8F9AC;
+    font-weight: bold;
+    padding: 0 1px;
+  }
+  
+  /* Fixed accordion styles */
+  .accordion-button {
+    background-color: rgba(210, 210, 210, 0.2);
+    padding: 1rem 1.25rem;
+    min-height: 3.5rem; /* Added fixed height */
+    display: flex;
+    align-items: center;
+  }
+  
+  .accordion-button:not(.collapsed) {
+    background-color: rgba(210, 210, 210, 0.4);
+  }
+
+  /* Update the accordion-body and list-group styles */
+  .accordion-body {
+    padding: 0 !important; /* Remove default padding */
+  }
+
+  .accordion-body .list-group {
+    max-height: 60vh;
+    overflow-y: auto;
+    margin: 0; /* Remove any default margin */
+    border-radius: 0 0 4px 4px; /* Match accordion border radius */
+  }
+
+  .accordion-body .list-group-item {
+    padding: 0.75rem 1.25rem;
+    border-left: 0;
+    border-right: 0;
+    border-bottom: 1px solid rgba(0,0,0,0.125);
+  }
+
+  /* Ensure the last item has proper border radius */
+  .accordion-body .list-group-item:last-child {
+    border-bottom: 0;
+    border-radius: 0 0 4px 4px;
+  }
+
+  /* Add a subtle border to the accordion to contain everything */
+  .accordion-item {
+    border: 1px solid rgba(0,0,0,0.125);
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+
+  /* Remove any extra spacing that might cause overlap */
+  .accordion-collapse {
+    border-top: 1px solid rgba(0,0,0,0.125);
+  }
+</style>
+
+<script>
+// JavaScript remains exactly the same as before
+document.addEventListener('DOMContentLoaded', function() {
+  const searchInput = document.getElementById('itemsSearch');
+  const searchResults = document.getElementById('searchResults');
+  const allItems = Array.from(document.querySelectorAll('.item-entry')).map(item => {
+    return {
+      element: item,
+      name: item.dataset.name,
+      description: item.dataset.description,
+      id: item.dataset.id,
+      html: item.innerHTML
+    };
+  });
+
+  function highlightText(text, searchTerm) {
+    if (!searchTerm) return text;
+    const regex = new RegExp(searchTerm, 'gi');
+    return text.replace(regex, match => `<span class="highlight">${match}</span>`);
+  }
+
+  function showSearchResults(results, searchTerm) {
+    searchResults.innerHTML = '';
+    
+    if (results.length === 0) {
+      const noResults = document.createElement('div');
+      noResults.className = 'search-result-item';
+      noResults.textContent = 'No items found';
+      searchResults.appendChild(noResults);
+    } else {
+      results.forEach(item => {
+        const resultElement = document.createElement('div');
+        resultElement.className = 'search-result-item';
+        resultElement.innerHTML = `
+          <div class="d-flex justify-content-between">
+            <div>
+              <div class="item-name">${highlightText(item.element.querySelector('.item-name').textContent, searchTerm)}</div>
+              ${item.description ? `<div class="item-description">${highlightText(item.description, searchTerm)}</div>` : ''}
+            </div>
+            <div class="item-price">
+              ${item.element.querySelector('.text-dark').textContent}
+            </div>
+          </div>
+        `;
+        
+        resultElement.addEventListener('click', () => {
+          window.location.href = item.element.href;
+        });
+        
+        searchResults.appendChild(resultElement);
+      });
+    }
+    
+    searchResults.style.display = results.length > 0 || searchTerm ? 'block' : 'none';
+  }
+
+  function performSearch() {
+    const searchTerm = searchInput.value.toLowerCase().trim();
+    
+    if (searchTerm === '') {
+      searchResults.style.display = 'none';
+      return;
+    }
+    
+    const results = allItems.filter(item => 
+      item.name.includes(searchTerm) || 
+      (item.description && item.description.includes(searchTerm))
+    );
+    
+    showSearchResults(results, searchTerm);
+  }
+
+  // Event listeners
+  searchInput.addEventListener('input', performSearch);
+  searchInput.addEventListener('focus', performSearch);
+  
+  document.addEventListener('click', function(e) {
+    if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+      searchResults.style.display = 'none';
+    }
+  });
+
+  // Close dropdown when pressing Escape
+  searchInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      searchResults.style.display = 'none';
+    }
+  });
+});
+</script>

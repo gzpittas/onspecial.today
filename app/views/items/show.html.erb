@@ -55,10 +55,20 @@
         <%= form_with(model: @item, id: "item-form", local: true) do |form| %>
           <% if @item.errors.any? %>
             <div class="alert alert-danger">
-              <h2><%= pluralize(@item.errors.count, "error") %> prohibited saving:</h2>
-              <ul>
+              <h4>Couldn't save this item because:</h4>
+              <ul class="mb-0">
                 <% @item.errors.each do |error| %>
-                  <li><%= error.full_message %></li>
+                  <li>
+                    <% if error.attribute == :name %>
+                      <strong>Name:</strong> <%= error.message %>
+                      <% if Item.exists?(name: @item.name) %>
+                        <%= link_to "View existing item", item_path(Item.find_by(name: @item.name)), 
+                            class: "small ms-2" %>
+                      <% end %>
+                    <% else %>
+                      <strong><%= error.attribute.to_s.humanize %>:</strong> <%= error.message %>
+                    <% end %>
+                  </li>
                 <% end %>
               </ul>
             </div>
@@ -202,54 +212,48 @@
     border-color: #dc3545 !important;
   }
 
+   .highlight-item {
+    background-color: #fff3cd !important;
+    transition: background-color 0.3s ease;
+    animation: pulseHighlight 2s;
+  }
+
+  @keyframes pulseHighlight {
+    0% { background-color: #fff3cd; }
+    50% { background-color: #ffe69c; }
+    100% { background-color: #fff3cd; }
+  }
+
 </style>
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // Category dropdown handling
+    // Category dropdown handling (existing code)
     document.querySelectorAll('.dropdown-item[data-category-id]').forEach(item => {
       item.addEventListener('click', function(e) {
         e.preventDefault();
         const categoryId = this.getAttribute('data-category-id');
         const categoryName = this.textContent;
         
-        // Update the dropdown button text
         document.getElementById('categoryDropdown').textContent = categoryName;
-        
-        // Update the hidden field value
         document.getElementById('category-field').value = categoryId;
-        
-        // Update the category header
         document.getElementById('category-header').textContent = categoryName.toUpperCase();
-        
-        // Remove invalid class when category is selected
         document.getElementById('categoryDropdown').classList.remove('is-invalid');
       });
     });
 
-    // Form submission validation
+    // Basic form validation (existing code)
     document.getElementById('item-form')?.addEventListener('submit', function(e) {
       const categoryField = document.getElementById('category-field');
       if (!categoryField.value) {
         e.preventDefault();
         alert('Please select a category');
-        // Highlight the dropdown to draw attention
         document.getElementById('categoryDropdown').classList.add('is-invalid');
         document.getElementById('categoryDropdown').focus();
       }
     });
 
-    // Initialize the hidden field if there's a preselected category
-    const initialCategory = document.getElementById('categoryDropdown').textContent.trim();
-    if (initialCategory !== 'Select Category') {
-      const initialItem = Array.from(document.querySelectorAll('.dropdown-item'))
-        .find(item => item.textContent.trim() === initialCategory);
-      if (initialItem) {
-        document.getElementById('category-field').value = initialItem.getAttribute('data-category-id');
-      }
-    }
-
-    // Rest of your existing price calculation code
+    // Price calculation code (existing)
     const cashPriceInput = document.getElementById('cash-price-input');
     let rawCashValue = parseFloat(cashPriceInput.value.replace(/[^0-9.]/g, '')) || 0;
     
@@ -263,31 +267,61 @@
       updatePreviewDescription();
     });
 
-    cashPriceInput.addEventListener('blur', function(e) {
-      if (rawCashValue > 0) {
-        this.value = rawCashValue.toLocaleString('en-US', {
-          style: 'decimal',
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2
-        });
-      } else {
-        this.value = '';
-        rawCashValue = 0;
+    // Name validation - ONLY FOR NEW ITEMS
+    document.getElementById('item-form')?.addEventListener('submit', async function(e) {
+      // Skip name validation if we're editing an existing item
+      if (<%= @item.persisted?.to_json %>) {
+        return true; // Allow form submission
+      }
+
+      const nameInput = document.getElementById('item-name-input');
+      const currentName = nameInput.value.trim();
+      
+      if (currentName) {
+        try {
+          e.preventDefault();
+          
+          const response = await fetch(`/items/check_name?name=${encodeURIComponent(currentName)}`);
+          const { exists, item_id, category_id } = await response.json();
+          
+          if (exists) {
+            nameInput.classList.add('is-invalid');
+            
+            let errorDiv = nameInput.nextElementSibling;
+            if (!errorDiv || !errorDiv.classList.contains('invalid-feedback')) {
+              errorDiv = document.createElement('div');
+              errorDiv.className = 'invalid-feedback';
+              nameInput.parentNode.appendChild(errorDiv);
+            }
+            
+            errorDiv.innerHTML = `An item named "${currentName}" already exists. 
+                                <a href="#" 
+                                   class="small view-existing-item" 
+                                   data-item-id="${item_id}"
+                                   data-category-id="${category_id}">View existing item</a>`;
+            
+            nameInput.focus();
+          } else {
+            this.submit();
+          }
+        } catch (error) {
+          console.error('Error checking item name:', error);
+          this.submit();
+        }
       }
     });
 
-    cashPriceInput.addEventListener('focus', function(e) {
-      this.value = rawCashValue > 0 ? rawCashValue.toString() : '';
+    // View existing item click handler
+    document.addEventListener('click', function(e) {
+      if (e.target.classList.contains('view-existing-item')) {
+        e.preventDefault();
+        const itemId = e.target.dataset.itemId;
+        const categoryId = e.target.dataset.categoryId;
+        window.location.href = `/items?highlight=${itemId}&open_category=${categoryId}`;
+      }
     });
 
-    document.getElementById('item-name-input')?.addEventListener('input', function(e) {
-      document.getElementById('preview-item-name').textContent = this.value || 'Item Name';
-    });
-
-    document.getElementById('item-description-input')?.addEventListener('input', function(e) {
-      updatePreviewDescription();
-    });
-
+    // Preview update functions (existing)
     function updatePreviewDescription() {
       const creditValue = rawCashValue ? (rawCashValue / 0.97).toFixed(2) : '0.00';
       const description = document.getElementById('item-description-input').value || 'Item description and all the trimmings.';
@@ -295,10 +329,31 @@
         `${description} $${creditValue} ($${rawCashValue ? rawCashValue.toFixed(2) : '0.00'})`;
     }
 
+    // Initialize hidden field if category preselected (existing)
+    const initialCategory = document.getElementById('categoryDropdown').textContent.trim();
+    if (initialCategory !== 'Select Category') {
+      const initialItem = Array.from(document.querySelectorAll('.dropdown-item'))
+        .find(item => item.textContent.trim() === initialCategory);
+      if (initialItem) {
+        document.getElementById('category-field').value = initialItem.getAttribute('data-category-id');
+      }
+    }
+
+    // Highlight specific item if parameters exist
+    <% if @highlight_item && @open_category %>
+      setTimeout(() => {
+        const item = document.querySelector(`.item-entry[data-id="<%= @highlight_item %>"]`);
+        if (item) {
+          item.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          item.classList.add('highlight-item');
+        }
+      }, 350);
+    <% end %>
+
     updatePreviewDescription();
   });
 
-  // More robust price handling
+  // Currency formatting helper (existing)
   function formatCurrency(value) {
     return parseFloat(value || 0).toLocaleString('en-US', {
       style: 'decimal',
@@ -307,3 +362,4 @@
     });
   }
 </script>
+
