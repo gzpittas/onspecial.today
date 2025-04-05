@@ -73,7 +73,7 @@ class ItemsController < ApplicationController
     @item = Item.new(item_params)
     
     if @item.save
-      redirect_to items_path, notice: 'Item created successfully'
+      redirect_to @item, notice: 'Item created successfully'
     else
       # This preserves all validation errors including any uniqueness errors
       # that were caught by Rails validations (not database level)
