@@ -9,7 +9,7 @@
         <div class="bg-white p-4 mb-4 shadow" style="max-width: 375px; border-radius: 0;">
           <div class="px-3 py-2">
             <h1 class="mb-2 h4" id="preview-item-name">
-              <%= @item.persisted? ? @item.name : "Item Name" %>
+              <strong><%= @item.persisted? ? @item.name.upcase : "ITEM NAME" %></strong>
             </h1>
             <p class="small mb-2" id="preview-description">
               <% if @item.description.present? %>
