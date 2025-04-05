@@ -135,15 +135,19 @@
           <%= form.hidden_field :credit_price, id: "credit-price-field" %>
 
           <div class="d-flex gap-4">
-            <%= form.submit @item.persisted? ? "Update Item" : "Create Item", class: "btn btn-warning" %>
-            
+
+            <%= link_to "Back to Menus", menus_path, class: "btn btn-outline-secondary px-4" %>
+
+            <%= link_to "Back to Items", items_path, class: "btn btn-outline-secondary px-4",
+                data: { confirm: @item.persisted? ? nil : "Are you sure you want to cancel? Any unsaved changes will be lost." } %>
+
             <% if @item.persisted? %>
               <%= link_to "New Item", new_item_path, class: "btn btn-outline-primary px-4" %>
             <% end %>
-          
-            <%= link_to "Back to Items", items_path, class: "btn btn-outline-secondary px-4",
-                data: { confirm: @item.persisted? ? nil : "Are you sure you want to cancel? Any unsaved changes will be lost." } %>
-            <%= link_to "Back to Menus", menus_path, class: "btn btn-outline-secondary px-4" %> 
+
+            <%= form.submit @item.persisted? ? "Update Item" : "Create Item", class: "btn btn-warning" %>
+
+
           </div>
         <% end %>
         
