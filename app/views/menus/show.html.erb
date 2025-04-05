@@ -13,7 +13,7 @@
               form: { data: { turbo_confirm: "Are you sure you want to remove ALL items from this menu?" } },
               class: "btn btn-danger" %>
               <%# Add this to your app/views/menus/show.html.erb %>
-        <%= link_to "Print Menu", print_menu_path(@menu), class: "btn btn-success", target: "_blank" %>
+        <%= link_to "Print Menu", print_menu_path(@menu), class: "btn btn-success" %>
       </div>
     </div>
     
@@ -332,6 +332,11 @@ document.addEventListener('DOMContentLoaded', function() {
     z-index: 1;
   }
 
+  .container {
+    width: 10in; /* Set the width to 6 inches */
+    margin-left: auto;
+    margin-right: auto; /* Center the container */
+  }
 
 
 </style>
