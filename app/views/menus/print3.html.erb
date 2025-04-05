@@ -6,67 +6,66 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Add Noto Sans from Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
   <style>
     @page {
       size: letter landscape;
-      margin: 0.25in;
+      margin: 0.5in;
     }
     body {
       font-family: 'Noto Sans', Arial, sans-serif;
-      line-height: 1.3;
+      line-height: 1.4;
       color: #212529;
-      font-size: 9pt;
     }
     .card {
       border: none;
       box-shadow: none;
     }
-    .column-header {
+    .card-header {
       background-color: white !important;
       border-bottom: none;
-      padding: 0.25rem 0;
-      margin-bottom: 0.5rem;
     }
     .menu-header h1 {
-      font-size: 16pt;
-      margin-bottom: 0.1rem;
+      font-size: 24pt;
+      margin-bottom: 0.5rem;
     }
     .menu-header p {
-      font-size: 9pt;
+      font-size: 12pt;
       color: #6c757d;
     }
     .category-title {
       color: rgba(0, 0, 0, 0.5);
       font-weight: bold;
       text-align: center;
-      font-size: 11pt;
-      margin-bottom: 0.25rem;
+      font-size: 16pt;
+      margin-bottom: 1rem;
       text-transform: uppercase;
     }
     .category-divider {
       width: 100%;
-      border-top: 1px solid #dee2e6;
-      margin: 0.15rem auto 0.5rem;
+      border-top: 2px solid #dee2e6;
+      margin: 0.5rem auto 1.5rem;
       opacity: 0.7;
     }
     .menu-item {
-      margin-bottom: 0.35rem;
+      margin-bottom: 1rem;
       text-align: center;
+      position: relative;
     }
     .menu-item h5 {
       font-weight: bold;
       text-transform: uppercase;
-      font-size: 9.5pt;
-      margin-bottom: 0.05rem;
+      font-size: 12pt;
+      margin-bottom: 0.25rem;
     }
     .item-details {
       color: #6c757d;
-      font-size: 8.5pt;
+      font-size: 11pt;
     }
     .print-actions {
       text-align: center;
-      padding: 10px 0;
+      padding: 20px 0;
     }
     
     /* Three column layout */
@@ -82,10 +81,6 @@
     .column-divider {
       border-left: 1px dashed #ccc;
       height: 100%;
-    }
-    
-    .menu-category {
-      margin-bottom: 1rem !important;
     }
     
     @media print {
@@ -106,30 +101,24 @@
       .three-column-container {
         height: 100%;
       }
-      body {
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-      }
     }
   </style>
 </head>
 <body>
-  <div class="container mt-1">
+  <div class="container mt-4">
     <div class="card">
-      <!-- Removed the main header since we're putting one in each column -->
+      <div class="card-header text-center">
+        <h1 class="mb-1 fw-bold"><%= @menu.title.upcase %></h1>
+        <p class="text-muted"><%= @menu.date.strftime("%A, %B %d, %Y").upcase %></p>
+      </div>
       
-      <div class="card-body p-1">
+      <div class="card-body">
         <div class="three-column-container">
           <!-- First Column -->
           <div class="menu-column">
-            <div class="column-header text-center">
-              <h1 class="menu-header mb-0 fw-bold"><%= @menu.title.upcase %></h1>
-              <p class="menu-header text-muted"><%= @menu.date.strftime("%A, %B %d, %Y").upcase %></p>
-            </div>
-            
             <% @menu_categories.each do |menu_category| %>
               <% if menu_category.menu_items.any? %>
-                <div class="menu-category">
+                <div class="menu-category mb-5">
                   <div class="text-center">
                     <h2 class="category-title"><%= menu_category.category.name.upcase %></h2>
                     <hr class="category-divider">
@@ -140,13 +129,13 @@
                       <h5><%= menu_item.item.name.upcase %></h5>
                       <div class="item-details">
                         <% if menu_item.item.description.present? %> 
-                          <p class="mb-0">
+                          <p class="mb-1">
                             <%= menu_item.item.description %>&nbsp;&nbsp;
                             $<%= sprintf('%.2f', menu_item.item.credit_price) %>
                             (<%= sprintf('%.2f', menu_item.item.cash_price) %>)
                           </p>
                         <% else %>
-                          <p class="mb-0">
+                          <p class="mb-1">
                             $<%= sprintf('%.2f', menu_item.item.credit_price) %>
                             (<%= sprintf('%.2f', menu_item.item.cash_price) %>)
                           </p>
@@ -164,14 +153,9 @@
           
           <!-- Second Column -->
           <div class="menu-column">
-            <div class="column-header text-center">
-              <h1 class="menu-header mb-0 fw-bold"><%= @menu.title.upcase %></h1>
-              <p class="menu-header text-muted"><%= @menu.date.strftime("%A, %B %d, %Y").upcase %></p>
-            </div>
-            
             <% @menu_categories.each do |menu_category| %>
               <% if menu_category.menu_items.any? %>
-                <div class="menu-category">
+                <div class="menu-category mb-5">
                   <div class="text-center">
                     <h2 class="category-title"><%= menu_category.category.name.upcase %></h2>
                     <hr class="category-divider">
@@ -182,13 +166,13 @@
                       <h5><%= menu_item.item.name.upcase %></h5>
                       <div class="item-details">
                         <% if menu_item.item.description.present? %> 
-                          <p class="mb-0">
+                          <p class="mb-1">
                             <%= menu_item.item.description %>&nbsp;&nbsp;
                             $<%= sprintf('%.2f', menu_item.item.credit_price) %>
                             (<%= sprintf('%.2f', menu_item.item.cash_price) %>)
                           </p>
                         <% else %>
-                          <p class="mb-0">
+                          <p class="mb-1">
                             $<%= sprintf('%.2f', menu_item.item.credit_price) %>
                             (<%= sprintf('%.2f', menu_item.item.cash_price) %>)
                           </p>
@@ -206,14 +190,9 @@
           
           <!-- Third Column -->
           <div class="menu-column">
-            <div class="column-header text-center">
-              <h1 class="menu-header mb-0 fw-bold"><%= @menu.title.upcase %></h1>
-              <p class="menu-header text-muted"><%= @menu.date.strftime("%A, %B %d, %Y").upcase %></p>
-            </div>
-            
             <% @menu_categories.each do |menu_category| %>
               <% if menu_category.menu_items.any? %>
-                <div class="menu-category">
+                <div class="menu-category mb-5">
                   <div class="text-center">
                     <h2 class="category-title"><%= menu_category.category.name.upcase %></h2>
                     <hr class="category-divider">
@@ -224,13 +203,13 @@
                       <h5><%= menu_item.item.name.upcase %></h5>
                       <div class="item-details">
                         <% if menu_item.item.description.present? %> 
-                          <p class="mb-0">
+                          <p class="mb-1">
                             <%= menu_item.item.description %>&nbsp;&nbsp;
                             $<%= sprintf('%.2f', menu_item.item.credit_price) %>
                             (<%= sprintf('%.2f', menu_item.item.cash_price) %>)
                           </p>
                         <% else %>
-                          <p class="mb-0">
+                          <p class="mb-1">
                             $<%= sprintf('%.2f', menu_item.item.credit_price) %>
                             (<%= sprintf('%.2f', menu_item.item.cash_price) %>)
                           </p>
@@ -255,8 +234,10 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Bootstrap Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
   <script>
+    // Auto-trigger print dialog when page loads (optional)
     document.addEventListener('DOMContentLoaded', function() {
       // Uncomment below line if you want the print dialog to open automatically
       // window.print();

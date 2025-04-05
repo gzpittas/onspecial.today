@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= @menu.title %> - Printable Menu</title>
+  <%= csrf_meta_tags %>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Add Noto Sans from Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+  <style>
+    @page {
+      size: letter;
+      margin: 0.5in;
+    }
+    body {
+      font-family: 'Noto Sans', Arial, sans-serif;
+      line-height: 1.4;
+      color: #212529;
+    }
+    .card {
+      border: none;
+      box-shadow: none;
+    }
+    .card-header {
+      background-color: white !important;
+      border-bottom: none;
+    }
+    .menu-header h1 {
+      font-size: 24pt;
+      margin-bottom: 0.5rem;
+    }
+    .menu-header p {
+      font-size: 12pt;
+      color: #6c757d;
+    }
+    .category-title {
+      color: rgba(0, 0, 0, 0.5);
+      font-weight: bold;
+      text-align: center;
+      font-size: 16pt;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+    }
+    .category-divider {
+      width: 6in;
+      border-top: 2px solid #dee2e6;
+      margin: 0.5rem auto 1.5rem;
+      opacity: 0.7;
+    }
+    .menu-item {
+      margin-bottom: 1rem;
+      text-align: center;
+      position: relative;
+    }
+    .menu-item h5 {
+      font-weight: bold;
+      text-transform: uppercase;
+      font-size: 12pt;
+      margin-bottom: 0.25rem;
+    }
+    .item-details {
+      color: #6c757d;
+      font-size: 11pt;
+    }
+    .print-actions {
+      text-align: center;
+      padding: 20px 0;
+    }
+    @media print {
+      .no-print {
+        display: none;
+      }
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
+      .container {
+        max-width: 100%;
+        padding: 0;
+      }
+      .print-actions {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container mt-4">
+    <div class="card">
+      <div class="card-header text-center">
+        <h1 class="mb-1 fw-bold"><%= @menu.title.upcase %></h1>
+        <p class="text-muted"><%= @menu.date.strftime("%A, %B %d, %Y").upcase %></p>
+      </div>
+      
+      <div class="card-body">
+        <% @menu_categories.each do |menu_category| %>
+          <% if menu_category.menu_items.any? %>
+            <div class="menu-category mb-5">
+              <div class="text-center">
+                <h2 class="category-title"><%= menu_category.category.name.upcase %></h2>
+                <hr class="category-divider">
+              </div>
+              
+              <% menu_category.menu_items.each do |menu_item| %>
+                <div class="menu-item">
+                  <h5><%= menu_item.item.name.upcase %></h5>
+                  <div class="item-details">
+                    <% if menu_item.item.description.present? %> 
+                      <p class="mb-1">
+                        <%= menu_item.item.description %>&nbsp;&nbsp;
+                        $<%= sprintf('%.2f', menu_item.item.credit_price) %>
+                        (<%= sprintf('%.2f', menu_item.item.cash_price) %>)
+                      </p>
+                    <% else %>
+                      <p class="mb-1">
+                        $<%= sprintf('%.2f', menu_item.item.credit_price) %>
+                        (<%= sprintf('%.2f', menu_item.item.cash_price) %>)
+                      </p>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="print-actions no-print">
+    <%= link_to "Back to Menu", menu_path(@menu), class: "btn btn-secondary me-2" %>
+    <button onclick="window.print()" class="btn btn-success">
+      <i class="bi bi-printer-fill"></i> Print Menu
+    </button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <script>
+    // Auto-trigger print dialog when page loads (optional)
+    document.addEventListener('DOMContentLoaded', function() {
+      // Uncomment below line if you want the print dialog to open automatically
+      // window.print();
+    });
+  </script>
+</body>
+</html>
